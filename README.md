@@ -1,3 +1,16 @@
+#### rac projet
+doskey projet=cd C:\Users\Maste\"OneDrive - Aix-Marseille Université"\Bureau\ecole_pc\5A\T2\"Apprentissage Profond"\projet\Projet-TTS_AP
+
+#### pour redruire le chemin : 
+prompt $g
+
+prompt %CONDA_PROMPT_MODIFIER%$g
+
+#### retablire ou presque:
+prompt $p$g
+
+
+
 # Projet-TTS_AP
 ├── src/
 │   ├── main.cpp
