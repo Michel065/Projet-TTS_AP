@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -std=c++17 -Iinclude -Isrc -MMD -MP
+CXXFLAGS = -Wall -std=c++20 -Iinclude -Isrc -MMD -MP -Ilib
 LDFLAGS =
 
 SRC_DIR := src
@@ -18,7 +18,7 @@ $(TARGET): $(OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	if not exist "$(subst /,\,$(dir $@))" mkdir "$(subst /,\,$(dir $@))"
+	@if not exist "$(subst /,\,$(dir $@))" mkdir "$(subst /,\,$(dir $@))"
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
@@ -26,7 +26,13 @@ clean:
 	if exist "$(TARGET)" del /q "$(TARGET)"
 
 run: $(TARGET)
-	.\$(TARGET)
+	@echo.
+	@echo Execution $(TARGET) ... 
+	@echo.
+	@.\$(TARGET)
+	@echo.
+	@echo Execution $(TARGET) Termine.
+
 
 r: run
 c: clean

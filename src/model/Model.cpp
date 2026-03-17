@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
 
-#include "model/tool_model.h"
-#include "tool/print.h"
+#include "model/Model.h"
+#include "tool/Print.h"
 
 Model::Model(std::string model_name){
 	_model_name=model_name;

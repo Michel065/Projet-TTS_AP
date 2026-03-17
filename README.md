@@ -10,95 +10,42 @@ prompt %CONDA_PROMPT_MODIFIER%$g
 prompt $p$g
 
 
-
 # Projet-TTS_AP
-├── src/
-│   ├── main.cpp
-│   ├── audio/
-│   │   ├── audio_loader.cpp
-│   │   ├── audio_saver.cpp
-│   │   └── wav_reader.cpp
-│   ├── features/
-│   │   ├── spectrogram.cpp
-│   │   ├── mel_spectrogram.cpp
-│   │   └── phoneme_converter.cpp
-│   ├── dataset/
-│   │   ├── dataset_loader.cpp
-│   │   ├── dataset_parser.cpp
-│   │   └── sample_builder.cpp
-│   ├── model/
-│   │   ├── tensor.cpp
-│   │   ├── layer_dense.cpp
-│   │   ├── activation.cpp
-│   │   ├── autoencoder.cpp
-│   │   ├── encoder.cpp
-│   │   ├── decoder.cpp
-│   │   ├── quantizer.cpp
-│   │   └── sequential_model.cpp
-│   ├── train/
-│   │   ├── train_autoencoder.cpp
-│   │   ├── train_sequential.cpp
-│   │   └── loss.cpp
-│   ├── inference/
-│   │   ├── encode_audio.cpp
-│   │   ├── decode_latent.cpp
-│   │   ├── text_to_phoneme.cpp
-│   │   └── generate_speech.cpp
-│   └── utils/
-│       ├── config.cpp
-│       ├── logger.cpp
-│       └── file_utils.cpp
-│
-├── include/
-│   ├── audio/
-│   │   ├── audio_loader.h
-│   │   ├── audio_saver.h
-│   │   └── wav_reader.h
-│   ├── features/
-│   │   ├── spectrogram.h
-│   │   ├── mel_spectrogram.h
-│   │   └── phoneme_converter.h
-│   ├── dataset/
-│   │   ├── dataset_loader.h
-│   │   ├── dataset_parser.h
-│   │   └── sample_builder.h
-│   ├── model/
-│   │   ├── tensor.h
-│   │   ├── layer_dense.h
-│   │   ├── activation.h
-│   │   ├── autoencoder.h
-│   │   ├── encoder.h
-│   │   ├── decoder.h
-│   │   ├── quantizer.h
-│   │   └── sequential_model.h
-│   ├── train/
-│   │   ├── train_autoencoder.h
-│   │   ├── train_sequential.h
-│   │   └── loss.h
-│   ├── inference/
-│   │   ├── encode_audio.h
-│   │   ├── decode_latent.h
-│   │   ├── text_to_phoneme.h
-│   │   └── generate_speech.h
-│   └── utils/
-│       ├── config.h
-│       ├── logger.h
-│       └── file_utils.h
-│
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   ├── phonemes/
-│   └── latents/
-│
-├── models/
-│   ├── autoencoder/
-│   └── sequential/
-│
-├── tests/
-│   ├── test_spectrogram.cpp
-│   ├── test_autoencoder.cpp
-│   └── test_sequential.cpp
-│
-├── Makefile
-└── README.md
+
+Exemple: 
+from tensorflow.keras import layers, models
+
+input_shape = (80, 100, 1)  # mel spectrogram
+
+encoder = models.Sequential([
+    layers.Conv2D(16, 3, activation="relu", padding="same"),
+    layers.MaxPool2D(2),
+    layers.Conv2D(32, 3, activation="relu", padding="same"),
+    layers.MaxPool2D(2)
+])
+
+decoder = models.Sequential([
+    layers.Conv2DTranspose(32, 3, strides=2, activation="relu", padding="same"),
+    layers.Conv2DTranspose(16, 3, strides=2, activation="relu", padding="same"),
+    layers.Conv2D(1, 3, activation="sigmoid", padding="same")
+])
+
+input_layer = layers.Input(shape=input_shape)
+encoded = encoder(input_layer)
+decoded = decoder(encoded)
+
+autoencoder = models.Model(input_layer, decoded)
+autoencoder.summary()
+
+### ce qu'on veux
+
+Model model;
+
+model.add(Conv2D(...));
+model.add(MaxPool(...));
+model.add(Conv2D(...));
+
+model.add(ConvTranspose(...));
+model.add(ConvTranspose(...));
+
+Tensor out = model.forward(x);

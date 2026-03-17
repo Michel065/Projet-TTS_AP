@@ -1,9 +1,7 @@
 data/*
+lib/*
 
 .vscode/
-
-
-
 
 # Prerequisites
 *.d
