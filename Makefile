@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -std=c++20 -Iinclude -Isrc -MMD -MP -Ilib
+CXXFLAGS = -Wall -std=c++20 -Iinclude -Isrc -MMD -MP -Iextern_include
 LDFLAGS =
 
 SRC_DIR := src

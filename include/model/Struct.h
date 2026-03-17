@@ -3,30 +3,22 @@
 #include<vector>
 
 struct Shape {
-    std::vector<int> dims;
+    std::vector<size_t> dims;
 
-    Shape(){
+    Shape(){}
+    Shape(std::vector<size_t> data): dims(data){}
 
-    }
+    int len() const {return dims.size();}
 
-    Shape(std::vector<int> data){
-        dims=data;
-    }
-
-    int len(){
-        return dims.size();
-    }
-
-    int& operator[](size_t i) {
+    size_t& operator[](size_t i) {
         return dims[i];
     }
 
-    const int& operator[](size_t i) const {
+    const size_t& operator[](size_t i) const {
         return dims[i];
     }
 
-
-    std::string print(){
+    std::string print() const{
         std::string txt="(";
         int t = len();
         if(t>1){    

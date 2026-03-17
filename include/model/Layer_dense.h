@@ -3,7 +3,7 @@
 
 class LayerDense : public Layer {
 public:
-    LayerDense(int output_size);
+    LayerDense(size_t output_size);
 
     void build() override;
     Tensor forward(const Tensor& input) override;

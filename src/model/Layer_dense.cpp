@@ -1,6 +1,6 @@
 #include "model/layer_dense.h"
 
-LayerDense::LayerDense(int output_size){
+LayerDense::LayerDense(size_t output_size){
     Shape s({output_size});
     set_output_shape(s);
 
