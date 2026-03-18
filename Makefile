@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -std=c++20 -Iinclude -Isrc -MMD -MP -Iextern_include
+CXXFLAGS = -Wall -std=c++20 -Iinclude -Isrc -MMD -MP -Iext_inc
 LDFLAGS =
 
 SRC_DIR := src
@@ -36,5 +36,5 @@ run: $(TARGET)
 
 r: run
 c: clean
-
+	
 -include $(DEPS)

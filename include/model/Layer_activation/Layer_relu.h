@@ -1,15 +1,17 @@
 #pragma once
 #include "model/Layer.h"
 
-class LayerDense : public Layer {
+class LayerRelu : public Layer {
 public:
-    LayerDense(size_t output_size);
+    LayerRelu() : Layer("Relu"){}
+
+    Tensor relu(const Tensor& x);
+    Tensor relu_grad();
 
     void build() override;
     Tensor forward(const Tensor& input) override;
     Tensor backward(const Tensor& grad) override;
 
 private:
-	Tensor* _W = nullptr;
-	Tensor* _b = nullptr;
+	Tensor _last_output;
 };

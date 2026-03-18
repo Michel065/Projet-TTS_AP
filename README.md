@@ -1,3 +1,9 @@
+doskey projet=cd C:\Users\Maste\"OneDrive - Aix-Marseille Université"\Bureau\ecole_pc\5A\T2\"Apprentissage Profond"\projet\Projet-TTS_AP
+projet
+prompt %CONDA_PROMPT_MODIFIER%$g
+cls
+
+
 #### rac projet
 doskey projet=cd C:\Users\Maste\"OneDrive - Aix-Marseille Université"\Bureau\ecole_pc\5A\T2\"Apprentissage Profond"\projet\Projet-TTS_AP
 

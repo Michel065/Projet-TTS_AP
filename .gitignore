@@ -1,5 +1,5 @@
 data/*
-extern_include/*
+ext_inc/*
 
 .vscode/
 

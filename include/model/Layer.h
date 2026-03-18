@@ -1,10 +1,11 @@
 #pragma once
-#include "model/Tensor.h"
-#include "model/Struct.h"
-#include "tool/Print.h"
+#include "model/Tool/Tensor.h"
+#include "model/Tool/Shape.h"
+#include "outil/Print.h"
 
 class Layer {
 public:
+    Layer(std::string nom_couche="Inconue"):nom_couche(nom_couche){}
     virtual ~Layer() {}
 
     virtual void set_input_shape(Shape shape_input);
@@ -14,6 +15,7 @@ public:
     Shape get_input_shape();
 
     void set_id(int id);
+    void init_eta(float eta);
 
     virtual void build() = 0;
 
@@ -22,8 +24,12 @@ public:
 
     void print_couche_msg(std::string msg,Color couleur = Color::DEFAULT);
 
+    void print();
+
 protected:
 	Shape _shape_input;
 	Shape _shape_output;
-	std::string nom_couche = "Inconue";
+	std::string nom_couche;
+    float _eta=0.01f;
+    size_t _nb_params = 0;
 };
