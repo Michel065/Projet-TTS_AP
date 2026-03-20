@@ -27,3 +27,11 @@ std::string Shape::print() const{
     }
     return txt; 
 }
+
+int Shape::size() const{
+    int taille=1;
+    for(int i=0;i<len();i++){
+        taille*=dims[i];
+    }
+    return taille;
+}

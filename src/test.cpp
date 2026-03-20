@@ -1,7 +1,7 @@
 #include "test.h"
 
 void test_RNN(){
-    size_t n = 5000;
+    size_t n = 500;
 
     Tensor X(Shape({n, 2}));
     Tensor y(Shape({n, 1}));
@@ -65,10 +65,12 @@ void test_RNN(){
     model.add(new LayerSigmoid());
 
     Print("entrainement.");
-    model.fit(X, y, 1000);
-
+    model.fit(X, y, 200);
+    
+    model.create_graph_loss_entrainement();
+    /*
     Print("");
     Print("Test:");
     Tensor pred = model.forward(x_test).round(3);
-    Print("Prediction :", pred);
+    Print("Prediction :", pred);*/
 }

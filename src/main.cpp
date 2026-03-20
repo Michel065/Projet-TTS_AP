@@ -45,7 +45,6 @@ void test_actu(){
 
     Print("construction model.");
     Model model("test",Shape({2}),0.01);
-
     model.add(new LayerDense(10));
     model.add(new LayerRelu());
     model.add(new LayerDense(20));
@@ -56,17 +55,17 @@ void test_actu(){
     model.add(new LayerSoftMax());
 
     Print("entrainement.");
-    model.fit(X,y,50);
-
+    model.fit(X,y,500);
+    /*
     Print("Test:");
     Tensor y_test = model.forward(x_test).round(3)*100;
     Print("Prediction :",y_test);
-
-    model.print();
+    */
+    model.create_graph_loss_entrainement();
 }
 
 int main() {
-    test_actu();
-    //test_RNN();
+    //test_actu();
+    test_RNN();
     return 0;
 }

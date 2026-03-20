@@ -31,6 +31,9 @@ public:
     Tensor transpose() const;//pour la propagation
     Tensor sum_axis(std::size_t axis, bool keep_dims) const;
     Tensor exp() const;
+    float moyenne() const;
+    Tensor pow(float val) const;
+    int size() const;
     Tensor max(float val=0.0f) const;
     Tensor sum_per_row() const;
     Tensor max_per_row() const;

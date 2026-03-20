@@ -254,19 +254,19 @@ Tensor Tensor::operator>(float scalar) const {
 }
 
 Tensor Tensor::sum_per_row() const {
-    Tensor res;
+    Tensor res(shape);
     res.data = xt::sum(data, {1}, xt::keep_dims);
     return res;
 }
 
 Tensor Tensor::max_per_row() const {
-    Tensor res;
+    Tensor res(shape);
     res.data = xt::amax(data, {1}, xt::keep_dims);
     return res;
 }
 
 Tensor Tensor::round(int decimals) const {
-    Tensor res;
+    Tensor res(shape);
     float factor = std::pow(10.0f, decimals);
     res.data = xt::round(data * factor) / factor;
     return res;
@@ -278,4 +278,18 @@ void Tensor::set(std::initializer_list<int> indices, float value){
         idx.push_back(static_cast<size_t>(i));
     }
     data.element(idx.begin(), idx.end()) = value;
+}
+
+
+float Tensor::moyenne() const {
+    return xt::mean(data)();
+}
+
+Tensor Tensor::pow(float val) const {
+    Tensor result(shape);
+    result.data = xt::pow(data, val);
+    return result;
+}
+int Tensor::size() const{
+   return shape.size(); 
 }

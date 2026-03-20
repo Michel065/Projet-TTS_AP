@@ -14,7 +14,6 @@ public:
     Shape get_output_shape();
     Shape get_input_shape();
 
-    void set_id(int id);
     void init_eta(float eta);
 
     virtual void build() = 0;
