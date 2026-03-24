@@ -7,65 +7,48 @@
 #include "test.h"
 #include "model/Model.h"
 #include "model/Layer_dense/Layer_dense.h"
+#include "model/Layer_dense/Layer_norm.h"
 #include "model/Layer_activation/Layer_sigmoid.h"
 #include "model/Layer_activation/Layer_relu.h"
 #include "model/Layer_activation/Layer_softmax.h"
 #include "model/Tool/Shape.h"
 
 void test_actu(){
-    Tensor X,y;
-    X = Tensor({
-        {-1.0, -1.0},
-        {-1.2, -0.8},
-        {-0.8, -1.1},
-        {-1.1, -1.3},
+    Tensor X, y, x_test;
+    get_data_non_lineaire(X, y, x_test, 1500);
 
-        {1.0, 1.0},
-        {1.2, 0.9},
-        {0.8, 1.1},
-        {1.1, 1.3}
-    });
+    int nbr_neur_in = X.shape[1];
+    int nbr_neur_out = y.shape[1];
 
-    y = Tensor({
-        {1.0, 0.0},
-        {1.0, 0.0},
-        {1.0, 0.0},
-        {1.0, 0.0},
-
-        {0.0, 1.0},
-        {0.0, 1.0},
-        {0.0, 1.0},
-        {0.0, 1.0}
-    });
-
-    Tensor x_test = Tensor({
-        {0.9, 1.0},
-        {-0.9, -1.0}
-    });
+    /*
+    Tensor X, y, x_test;
+    get_data_non_lineaire(X, y, x_test, 500);
+    */
 
     Print("construction model.");
-    Model model("test",Shape({2}),0.01);
-    model.add(new LayerDense(10));
+    Model model("test",Shape({(size_t)nbr_neur_in}),0.01);
+    model.add(new LayerDense(40));
     model.add(new LayerRelu());
     model.add(new LayerDense(20));
     model.add(new LayerRelu());
-    model.add(new LayerDense(10));
+    model.add(new LayerDense(20));
     model.add(new LayerRelu());
-    model.add(new LayerDense(2));
+    model.add(new LayerDense(5));
+    model.add(new LayerRelu());
+    model.add(new LayerDense(nbr_neur_out));
     model.add(new LayerSoftMax());
 
     Print("entrainement.");
-    model.fit(X,y,500);
-    /*
+    model.fit(X,y,500,64);
+    
     Print("Test:");
-    Tensor y_test = model.forward(x_test).round(3)*100;
+    Tensor y_test = model.predict(x_test).round(3)*100;
     Print("Prediction :",y_test);
-    */
-    model.create_graph_loss_entrainement();
+    //model.print();
+    //model.create_graph_loss_entrainement();
 }
 
 int main() {
-    //test_actu();
-    test_RNN();
+    test_actu();
     return 0;
 }

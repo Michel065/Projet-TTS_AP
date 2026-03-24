@@ -1,4 +1,5 @@
 #include "model/Layer_dense/Layer_dense.h"
+#include "model/Model.h"
 
 LayerDense::LayerDense(size_t output_size) : Layer("Dense"){
     set_output_shape(Shape({output_size}));
@@ -17,6 +18,10 @@ void LayerDense::build(){
 
     //pour le print
     _nb_params = (_shape_input[0] * _shape_output[0]) + _shape_output[0];
+
+    if(_model != nullptr){
+        _eta = _model->get_eta();
+    }
 
     print_couche_msg("Build termine.",Color::GREEN);
 }

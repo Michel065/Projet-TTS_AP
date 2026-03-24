@@ -11,4 +11,5 @@
 #include "model/Layer_activation/Layer_softmax.h"
 #include "model/Tool/Shape.h"
 
-void test_RNN();
+void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test);
+void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n=500);

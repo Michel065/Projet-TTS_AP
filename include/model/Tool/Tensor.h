@@ -3,6 +3,7 @@
 #include <xtensor/containers/xarray.hpp>
 #include <xtensor/io/xio.hpp>
 #include <random>
+#include <vector>
 #include <stdexcept>
 #include <xtensor/generators/xbuilder.hpp>
 #include <xtensor/core/xmath.hpp>
@@ -19,6 +20,8 @@ public:
     Tensor();
     Tensor(const xt::xarray<float>& arr);
     Tensor(Shape _shape,bool alea=false,int val_init=0);
+    Tensor(const std::vector<std::vector<float>>& vec);
+    Tensor(const std::vector<float>& vec);
 
     Shape shape;
 
@@ -38,7 +41,9 @@ public:
     Tensor sum_per_row() const;
     Tensor max_per_row() const;
     Tensor round(int decimals) const;
-
+    std::vector<Tensor> separation_batch(int batch_size)const;
+    Tensor extraction_section_axe_0(int debut, int fin) const;
+    
     //test
     void set(std::initializer_list<int> indices, float value);
 

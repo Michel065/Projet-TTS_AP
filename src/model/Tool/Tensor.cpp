@@ -293,3 +293,80 @@ Tensor Tensor::pow(float val) const {
 int Tensor::size() const{
    return shape.size(); 
 }
+
+Tensor::Tensor(const std::vector<std::vector<float>>& vec){
+    size_t rows = vec.size();
+    size_t cols = rows > 0 ? vec[0].size() : 0;
+
+    data = xt::xarray<float>::from_shape({rows, cols});
+
+    for(size_t i = 0; i < rows; i++){
+        for(size_t j = 0; j < cols; j++){
+            data(i, j) = vec[i][j];
+        }
+    }
+
+    recalul_shape();
+}
+
+Tensor::Tensor(const std::vector<float>& vec){
+    size_t rows = vec.size();
+
+    data = xt::xarray<float>::from_shape({rows, 1});
+
+    for(size_t i = 0; i < rows; i++){
+        data(i, 0) = vec[i];
+    }
+
+    recalul_shape();
+}
+
+
+std::vector<Tensor> Tensor::separation_batch(int batch_size) const{
+    std::vector<Tensor> liste;
+    if(batch_size <= -1)
+        Throw_Error("batch_size invalide >= 0");
+    if(batch_size == 0){
+        Tensor tmp(xt::eval(data));
+        liste.push_back(tmp);
+        return liste;
+    }
+
+    if(shape.len() == 0)
+        Throw_Error("Tensor invalide (Aucune dimension).");
+
+    int nbr_val_tensor = shape[0];
+    if(nbr_val_tensor == 0)
+        return liste;
+
+    int nbr_de_batch = (nbr_val_tensor + batch_size - 1) / batch_size;
+    liste.reserve(nbr_de_batch);
+
+    for(int i = 0; i < nbr_val_tensor; i += batch_size){
+        int debut = i;
+        int fin = std::min(i + batch_size, nbr_val_tensor);
+        liste.push_back(extraction_section_axe_0(debut, fin));
+    }
+
+    return liste;
+}
+
+Tensor Tensor::extraction_section_axe_0(int debut, int fin) const{
+    if(shape.len() == 0)
+        Throw_Error("Tensor vide");
+
+    int nbr_val_tensor = shape[0];
+
+    if(debut < 0 || fin < 0 || debut > fin || fin > nbr_val_tensor)
+        Throw_Error("Indices invalides dans extraction_section_axe_0");
+
+    xt::xstrided_slice_vector slices;
+    slices.push_back(xt::range(debut, fin));
+
+    for(int d = 1; d < shape.len(); d++)
+        slices.push_back(xt::all());
+
+    Tensor tmp = Tensor(xt::eval(xt::strided_view(data, slices)));
+    tmp.recalul_shape();
+    return tmp;
+}

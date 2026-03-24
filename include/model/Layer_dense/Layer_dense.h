@@ -13,4 +13,5 @@ private:
 	Tensor _W;
 	Tensor _b;
 	Tensor _last_input; //pour le retour
+    float _eta=0.f;
 };

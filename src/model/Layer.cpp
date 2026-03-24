@@ -21,10 +21,14 @@ void Layer::print_couche_msg(std::string msg,Color couleur){
     Print_Color(couleur, "Couche "+nom_couche+"[",_shape_input.print(),";",_shape_output.print(),"]:"+msg);
 }
 
-void Layer::init_eta(float eta){
-    _eta=eta;
+void Layer::set_model(Model* model_global){
+    _model=model_global;
 }
 
 void Layer::print(){
     Print_Color(Color::PINK,"Couche ", nom_couche, "[",_shape_input.print(), ";",_shape_output.print(), "] : ",_nb_params, " params");
+}
+
+int Layer::get_nbr_params(){
+    return _nb_params;
 }

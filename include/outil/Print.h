@@ -44,6 +44,13 @@ inline void Print(const Args&... args) {
 }
 
 template<typename... Args>
+inline void Print_over(const Args&... args) {
+    std::cout << Color::DEFAULT<<"\r";
+    (std::cout << ... << args);
+    std::cout << Color::DEFAULT << std::flush;
+}
+
+template<typename... Args>
 inline void Throw_Error_Color(Color color, const Args&... args){
     std::ostringstream oss;
     oss<<color<<"Erreur: ";
