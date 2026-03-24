@@ -9,9 +9,16 @@
 #include "model/Tool/graphs_tool.h"
 #include "model/Callback/Callback.h"
 
+struct ModelConfig {
+    std::string model_name="model";
+	Shape input_shape;
+	float eta=0.01f;
+	Loss* loss_function = new LossBinaryCrossEntropy();
+};
+
 class Model {
 public:
-	Model(std::string model_name,Shape input_shape,float eta=0.01f,Loss* loss_function = new LossBinaryCrossEntropy());
+	Model(ModelConfig model_config);
 	
 	void add(Layer* layer);
 	Tensor forward(const Tensor& input);

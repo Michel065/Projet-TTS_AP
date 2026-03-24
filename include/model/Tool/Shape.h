@@ -9,6 +9,7 @@ struct Shape {
 
     Shape(){}
     Shape(std::vector<size_t> data): dims(data){}
+    
     int len() const;
     int size() const;
     size_t& operator[](size_t i);

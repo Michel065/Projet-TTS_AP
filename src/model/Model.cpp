@@ -4,11 +4,11 @@
 #include "model/Model.h"
 #include "outil/Print.h"
 
-Model::Model(std::string model_name,Shape input_shape,float eta,Loss* loss_function){
-	_model_name=model_name;
-	_input_shape=input_shape;
-	_eta=eta;
-	_loss_function=loss_function;
+Model::Model(ModelConfig model_config){
+	_model_name=model_config.model_name;
+	_input_shape=model_config.input_shape;
+	_eta=model_config.eta;
+	_loss_function=model_config.loss_function;
 }
 
 void Model::print(){

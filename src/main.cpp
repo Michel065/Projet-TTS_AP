@@ -18,12 +18,12 @@ void test_actu(){
     Tensor X, y, x_test;
     get_data_non_lineaire(X, y, x_test,1000);
 
-    int nbr_neur_in = X.shape[1];
+    size_t nbr_neur_in = (size_t)X.shape[1];
     int nbr_neur_out = y.shape[1];
 
     Print("construction model.");
-    Model model("test", Shape({(size_t)nbr_neur_in}), 0.11);
-    model.add(new LayerNormalisation({-3,-3},{3,3}));
+    Model model({.input_shape = Shape({nbr_neur_in}), .eta = 0.11});
+    model.add(new LayerNormalisation({-3,-3},{3,3}));// c le min et le max a la main
     model.add(new LayerDense(20));
     model.add(new LayerRelu());
     model.add(new LayerDense(20));
@@ -33,7 +33,7 @@ void test_actu(){
     model.add(new LayerDense(nbr_neur_out));
     model.add(new LayerSigmoid());
 
-    model.add_callback(new CallbackEarlyStopLoss(10));
+    model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
 
     //model.set_affichge_level(1);
 

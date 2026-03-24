@@ -1,20 +1,13 @@
 #include "model/Callback/Callback.h"
-/*
-struct EarlyStopConfig {  ca a reflechir trop bien pour chosir quelle param a implementer
-    float epsilon = 0.0001f;
-    int patience = 3;
+
+struct EarlyStopConfig {
+    float epsilon = 0.001f;
+    int patience = 5;
 };
-/*
-CallbackEarlyStopLoss(EarlyStopConfig config)
-    : epsilon(config.epsilon), patience(config.patience) {}
-
-    et du coup : CallbackEarlyStopLoss({.patience = 5});
-*/
-
 
 class CallbackEarlyStopLoss : public Callback {
 public:
-    CallbackEarlyStopLoss(int patience=5, float epsilon=0.001f): epsilon(epsilon), patience(patience) {}
+    CallbackEarlyStopLoss(EarlyStopConfig config): epsilon(config.epsilon), patience(config.patience) {}
     void on_epoch_end() override;
 
 private:
