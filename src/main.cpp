@@ -12,23 +12,18 @@
 #include "model/Layer_activation/Layer_relu.h"
 #include "model/Layer_activation/Layer_softmax.h"
 #include "model/Tool/Shape.h"
+#include "model/Callback/CallbackEarlyStopLoss.h"
 
 void test_actu(){
     Tensor X, y, x_test;
-    get_data_non_lineaire(X, y, x_test, 1500);
+    get_data_non_lineaire(X, y, x_test,1000);
 
     int nbr_neur_in = X.shape[1];
     int nbr_neur_out = y.shape[1];
 
-    /*
-    Tensor X, y, x_test;
-    get_data_non_lineaire(X, y, x_test, 500);
-    */
-
     Print("construction model.");
-    Model model("test",Shape({(size_t)nbr_neur_in}),0.01);
-    model.add(new LayerDense(40));
-    model.add(new LayerRelu());
+    Model model("test", Shape({(size_t)nbr_neur_in}), 0.11);
+    model.add(new LayerNormalisation({-3,-3},{3,3}));
     model.add(new LayerDense(20));
     model.add(new LayerRelu());
     model.add(new LayerDense(20));
@@ -36,14 +31,19 @@ void test_actu(){
     model.add(new LayerDense(5));
     model.add(new LayerRelu());
     model.add(new LayerDense(nbr_neur_out));
-    model.add(new LayerSoftMax());
+    model.add(new LayerSigmoid());
+
+    model.add_callback(new CallbackEarlyStopLoss(10));
+
+    //model.set_affichge_level(1);
 
     Print("entrainement.");
-    model.fit(X,y,500,64);
+    model.fit(X,y,500,4);
     
     Print("Test:");
-    Tensor y_test = model.predict(x_test).round(3)*100;
-    Print("Prediction :",y_test);
+    Tensor y_test = model.predict(x_test).round(2)*100;
+    Print("Prediction :",y_test);/**/
+
     //model.print();
     //model.create_graph_loss_entrainement();
 }

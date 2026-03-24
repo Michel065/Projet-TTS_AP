@@ -8,7 +8,7 @@ enum class TypeNormalisation {
 
 class LayerNormalisation : public Layer {
 public:
-    LayerNormalisation(float min, float max,TypeNormalisation type_norm = TypeNormalisation::ALTERNATIVE );
+    LayerNormalisation(std::vector<float> min, std::vector<float> max,TypeNormalisation type_norm = TypeNormalisation::ALTERNATIVE );
 
     Tensor calc_defaut(const Tensor& input);
     Tensor calc_defaut_grad(const Tensor& grad);
@@ -21,7 +21,7 @@ public:
     Tensor backward(const Tensor& grad) override;
 
 private:
-    float _min;
-    float _max;
+    Tensor _min;
+    Tensor _max;
     TypeNormalisation _type_norm;
 };

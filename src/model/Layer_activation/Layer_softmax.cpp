@@ -1,9 +1,13 @@
 #include "model/Layer_activation/Layer_softmax.h"
 
 Tensor LayerSoftMax::softmax(const Tensor& x){
+    if(x.shape[1] == 1){
+        return x; //cas ou pas d'autre val alors pas de soft max possible
+    }
     Tensor shifted = x - x.max_per_row();
     Tensor exp_x = shifted.exp();
-    Tensor sum_exp = exp_x.sum_per_row();
+    float eps = 1e-8f;
+    Tensor sum_exp = exp_x.sum_per_row()+eps;
     return exp_x / sum_exp;
 }
 

@@ -32,3 +32,7 @@ void Layer::print(){
 int Layer::get_nbr_params(){
     return _nb_params;
 }
+
+std::string Layer::get_name(){
+    return nom_couche;
+}

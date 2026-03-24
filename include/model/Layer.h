@@ -27,8 +27,8 @@ public:
 
     void print();
     int get_nbr_params();
-
-
+    std::string get_name();
+    
 protected:
 	Shape _shape_input;
 	Shape _shape_output;

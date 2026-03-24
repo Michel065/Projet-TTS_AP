@@ -1,6 +1,9 @@
 #include "model/Layer_dense/Layer_norm.h"
 
-LayerNormalisation::LayerNormalisation(float min, float max,TypeNormalisation type_norm): Layer("Normalisation"), _min(min), _max(max),_type_norm(type_norm){
+LayerNormalisation::LayerNormalisation(std::vector<float> min, std::vector<float> max,TypeNormalisation type_norm): Layer("Normalisation"),_type_norm(type_norm){
+    _min = Tensor({min}).transpose();
+    _max = Tensor({max}).transpose();
+    
     if(_max == _min)
         Throw_Error("max ne peut pas etre egal a min (LayerNormalisation)");
 }

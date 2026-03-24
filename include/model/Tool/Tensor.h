@@ -43,6 +43,9 @@ public:
     Tensor round(int decimals) const;
     std::vector<Tensor> separation_batch(int batch_size)const;
     Tensor extraction_section_axe_0(int debut, int fin) const;
+    Tensor clip(float b_min,float b_max) const;
+    Tensor log() const;
+    bool scan_for_Nan(bool throww=true) const;
     
     //test
     void set(std::initializer_list<int> indices, float value);

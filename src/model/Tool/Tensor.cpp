@@ -370,3 +370,26 @@ Tensor Tensor::extraction_section_axe_0(int debut, int fin) const{
     tmp.recalul_shape();
     return tmp;
 }
+
+Tensor Tensor::clip(float b_min,float b_max) const {
+    Tensor result(shape);
+    result.data = xt::clip(data, b_min, b_max);
+    return result;
+}
+
+Tensor Tensor::log() const {
+    Tensor result(shape);
+    result.data = xt::log(data);
+    return result;
+}
+
+bool Tensor::scan_for_Nan(bool throww) const {
+    if (xt::any(xt::isnan(data))) {
+        if(throww){
+            Print("");
+            Throw_Error("Tensor ", shape.print(), " a un Nan dans ca valeur");
+        }
+        return true;
+    }
+    return false;
+}
