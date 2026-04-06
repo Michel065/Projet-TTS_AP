@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <vector>
+#include <cstdint>
 
 #include "outil/Print.h"
 #include "model/Model.h"
@@ -13,3 +15,4 @@
 
 void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test);
 void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n=500);
+void get_data_CNN(Tensor& X, Tensor& y, Tensor& x_test, Tensor& y_test);

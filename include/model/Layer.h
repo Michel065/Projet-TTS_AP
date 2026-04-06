@@ -2,6 +2,7 @@
 #include "model/Tool/Tensor.h"
 #include "model/Tool/Shape.h"
 #include "outil/Print.h"
+#include "model/Json/Json_gestion.h"
 
 class Model;
 
@@ -28,6 +29,12 @@ public:
     void print();
     int get_nbr_params();
     std::string get_name();
+
+    virtual void to_json(json& j) const = 0;
+    virtual void load_json(const json& j) = 0;
+
+    json to_json_layer() const;
+    void load_json_layer(const json& j);
     
 protected:
 	Shape _shape_input;
@@ -37,3 +44,15 @@ protected:
 
     Model* _model=nullptr;
 };
+
+inline void from_json(const json& j, Layer*& layer) {
+    std::string type = j.at("type");
+    layer = LayerConstructorListe::create(type);
+    layer->load_json_layer(j);
+    layer->load_json(j);
+}
+
+inline void to_json(json& j, const Layer* layer) {
+    j = layer->to_json_layer();
+    layer->to_json(j);
+}

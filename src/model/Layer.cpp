@@ -36,3 +36,16 @@ int Layer::get_nbr_params(){
 std::string Layer::get_name(){
     return nom_couche;
 }
+
+json Layer::to_json_layer() const {
+    return {
+        {"type", nom_couche},
+        {"shape_input", _shape_input},
+        {"shape_output", _shape_output}
+    };
+}
+
+void Layer::load_json_layer(const json& j) {
+    j.at("shape_input").get_to(_shape_input);
+    j.at("shape_output").get_to(_shape_output);
+}

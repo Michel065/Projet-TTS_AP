@@ -78,3 +78,73 @@ void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n){
         {2.5f, 1.5f}
     });
 }
+
+
+
+
+
+// recup d'internet et modifié
+static uint32_t read_uint32_be(std::ifstream& file){
+    unsigned char bytes[4];
+    file.read(reinterpret_cast<char*>(bytes), 4);
+    return (uint32_t(bytes[0]) << 24) |
+           (uint32_t(bytes[1]) << 16) |
+           (uint32_t(bytes[2]) << 8)  |
+           uint32_t(bytes[3]);
+}
+
+void get_data_CNN(Tensor& X, Tensor& y, Tensor& x_test, Tensor& y_test){
+    std::string path_images = "./data/mnist/t10k-images-idx3-ubyte";
+    std::string path_labels = "./data/mnist/t10k-labels-idx1-ubyte";
+    std::ifstream file_images(path_images, std::ios::binary);
+    std::ifstream file_labels(path_labels, std::ios::binary);
+    uint32_t magic_images = read_uint32_be(file_images);
+    uint32_t nb_images = read_uint32_be(file_images);
+
+    uint32_t magic_labels = read_uint32_be(file_labels);
+
+    if(magic_images != 2051){
+        Throw_Error("Magic number images invalide.");
+        return;
+    }
+
+    if(magic_labels != 2049){
+        Throw_Error("Magic number labels invalide.");
+        return;
+    }
+
+    size_t nb_test = 10;
+    size_t nb_train = nb_images - nb_test;
+
+    X = Tensor(Shape({nb_train, 1, 28, 28}), false);
+    y = Tensor(Shape({nb_train, 10}), false);
+    x_test = Tensor(Shape({nb_test, 1, 28, 28}), false);
+    y_test = Tensor(Shape({nb_test, 10}), false);
+
+    for(size_t i = 0; i < nb_images; i++){
+        unsigned char label_char;
+        file_labels.read(reinterpret_cast<char*>(&label_char), 1);
+        size_t label = static_cast<size_t>(label_char);
+
+        for(size_t r = 0; r < 28; r++){
+            for(size_t c = 0; c < 28; c++){
+                unsigned char pixel_char;
+                file_images.read(reinterpret_cast<char*>(&pixel_char), 1);
+                float pixel = float(pixel_char) / 255.0f;
+
+                if(i < nb_test){
+                    x_test(i, 0, r, c) = pixel;
+                }else{
+                    X(i - nb_test, 0, r, c) = pixel;
+                }
+            }
+        }
+
+        if(i < nb_test){
+            y_test(i, label) = 1.0f;
+        }else{
+            y(i - nb_test, label) = 1.0f;
+        }
+    }
+    Print("nb_images au total : ",nb_images);
+}

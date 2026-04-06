@@ -8,6 +8,7 @@ enum class TypeNormalisation {
 
 class LayerNormalisation : public Layer {
 public:
+    LayerNormalisation();
     LayerNormalisation(std::vector<float> min, std::vector<float> max,TypeNormalisation type_norm = TypeNormalisation::ALTERNATIVE );
 
     Tensor calc_defaut(const Tensor& input);
@@ -19,9 +20,14 @@ public:
     void build() override;
     Tensor forward(const Tensor& input) override;
     Tensor backward(const Tensor& grad) override;
+    
+    void to_json(json& j) const override;
+    void load_json(const json& j) override;
 
 private:
     Tensor _min;
     Tensor _max;
     TypeNormalisation _type_norm;
+    
+    inline static AutoRegisterLayer<LayerNormalisation> enregistrement{};
 };

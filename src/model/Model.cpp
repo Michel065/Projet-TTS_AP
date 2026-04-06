@@ -1,8 +1,13 @@
 #include <iostream>
 #include <string>
+#include <chrono>
 
 #include "model/Model.h"
 #include "outil/Print.h"
+
+Model::Model(std::string path){
+	load_path(path);
+}
 
 Model::Model(ModelConfig model_config){
 	_model_name=model_config.model_name;
@@ -49,6 +54,12 @@ void Model::backward(Tensor grad){
 	}
 }
 
+float Model::update_time_estimation(float temps_it, int total_it, int actuel_it) {
+    avg_time = (avg_time * count + temps_it) / (count + 1);
+    count++;
+    return avg_time * (total_it - actuel_it);
+}
+
 void Model::fit(Tensor input,Tensor y,int epochs,int batch_size){
 	std::vector<Tensor> input_split = input.separation_batch(batch_size);
 	std::vector<Tensor> y_split = y.separation_batch(batch_size);
@@ -57,15 +68,39 @@ void Model::fit(Tensor input,Tensor y,int epochs,int batch_size){
 	float loss_moy=0,loss_tmp=0;
 	early_stop=false;
 
+	if(_loss_function == nullptr){
+		Throw_Error("Fonction loss mnquante. (fit)");
+	}
+
+
+	//ajout d'une prediction du temps suite a l'ajout du CNN
+	avg_time = 0;
+	count = 0;
+	
 	for(int i=0;i<epochs;i++){		
 		loss_moy=0;
 		for(int id_it=0; id_it<nbr_split; id_it++){
+			auto debut_it = std::chrono::high_resolution_clock::now();
+
 			Y_pred = forward(input_split[id_it]);
 			loss_tmp = _loss_function->calcul_loss(Y_pred, y_split[id_it]);
 			loss_moy += loss_tmp;
 			backward(_loss_function->calcul_grad(Y_pred, y_split[id_it]));
+			
+
+
+
+			//prediction du temps calculs
+			auto fin_it = std::chrono::high_resolution_clock::now();
+			float temps_it = std::chrono::duration<float>(fin_it - debut_it).count();
+			int total_it = epochs * nbr_split;
+			int actuel_it = i * nbr_split + id_it + 1;
+			float temps_restant = update_time_estimation(temps_it, total_it, actuel_it); //total
+
+
+
 			if(_type_aff == 1)
-				Print_over("Epochs : ",i+1,"/", epochs, " iteration : ", id_it+1, "/", nbr_split," loss train : ",std::round(loss_tmp * 10000.0f) / 10000.0f);
+				Print_over("Epochs : ",i+1,"/", epochs, " iteration : ", id_it+1, "/", nbr_split," loss train : ",std::round(loss_tmp * 10000.0f) / 10000.0f," temps restant (fin du train): ", std::round(temps_restant), "s");
 		}
 		_train_loss_history.push_back(loss_moy/nbr_split);
 		
@@ -100,7 +135,7 @@ Tensor Model::predict(Tensor input){
 	return forward(input);
 }
 
-float Model::get_eta(){
+float Model::get_eta() const{
 	return _eta;
 }
 
@@ -121,4 +156,57 @@ void Model::run_callback(){
 
 std::vector<float>& Model::get_history(){
 	return _train_loss_history;
+}
+
+std::string Model::get_name_model() const{
+	return _model_name;
+}
+
+Shape Model::get_shape_input() const{
+	return _input_shape;
+}
+
+void Model::set_loss_function(Loss* loss_function){
+	_loss_function = loss_function;
+}
+
+const std::vector<Layer*>& Model::get_layers() const {
+	return _layers;
+}
+
+void Model::save(std::string path) {
+    json j = this;
+
+    std::ofstream file(path);
+    if (!file.is_open())
+        Throw_Error("Impossible d'ouvrir le fichier en ecriture : ", path);
+
+    file << j.dump();
+    file.close();
+	Print("Modele sauvegarde path:",path);
+}
+
+void Model::reformat(ModelConfig model_config){
+	_model_name=model_config.model_name;
+	_input_shape=model_config.input_shape;
+	_eta=model_config.eta;
+	_loss_function=model_config.loss_function;
+}
+
+void Model::load_path(std::string path) {
+    std::ifstream file(path);
+    if (!file.is_open())
+        Throw_Error("Impossible d'ouvrir le fichier en lecture : ", path);
+
+    json j;
+    file >> j;
+    file.close();
+
+    from_json(j, this);
+	Print("Modele charge  de path:",path);
+}
+
+void Model::add_from_save(Layer* layer){
+	layer->set_model(this);
+	_layers.push_back(layer);
 }

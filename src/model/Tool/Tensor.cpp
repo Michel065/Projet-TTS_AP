@@ -393,3 +393,22 @@ bool Tensor::scan_for_Nan(bool throww) const {
     }
     return false;
 }
+
+Tensor& Tensor::reshape(Shape format){
+    size_t size_old = 1;
+    for(size_t i = 0; i < (size_t)shape.len(); i++){
+        size_old *= shape[i];
+    }
+
+    size_t size_new = 1;
+    for(size_t i = 0; i < (size_t)format.len(); i++){
+        size_new *= format[i];
+    }
+
+    if(size_old != size_new){
+        Throw_Error("Tensor ", shape.print(), " reshape impossible vers ", format.print());
+    }
+    data.reshape(format.dims);
+    shape = format;
+    return *this;
+}

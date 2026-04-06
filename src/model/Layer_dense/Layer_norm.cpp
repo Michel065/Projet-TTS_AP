@@ -1,5 +1,7 @@
 #include "model/Layer_dense/Layer_norm.h"
 
+LayerNormalisation::LayerNormalisation(): Layer("Normalisation"){}
+
 LayerNormalisation::LayerNormalisation(std::vector<float> min, std::vector<float> max,TypeNormalisation type_norm): Layer("Normalisation"),_type_norm(type_norm){
     _min = Tensor({min}).transpose();
     _max = Tensor({max}).transpose();
@@ -54,4 +56,16 @@ Tensor LayerNormalisation::backward(const Tensor& grad){
 
     Throw_Error("TypeNormalisation inconnu");
     return grad;
+}
+
+void LayerNormalisation::to_json(json& j) const{
+    j["min_liste"] = _min;
+    j["max_liste"] = _max;
+    j["type_normalisation"] = _type_norm;
+}
+
+void LayerNormalisation::load_json(const json& j) {
+    j.at("min_liste").get_to(_min);
+    j.at("max_liste").get_to(_max);
+    j.at("type_normalisation").get_to(_type_norm);
 }

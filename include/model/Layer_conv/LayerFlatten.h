@@ -1,13 +1,10 @@
 #pragma once
 #include "model/Layer.h"
 
-class LayerSigmoid : public Layer {
+class LayerFlatten : public Layer {
 public:
-    LayerSigmoid() : Layer("Sigmoid"){}
+    LayerFlatten();
 
-    Tensor sigmoid(const Tensor& x);
-    Tensor sigmoid_grad();
-    
     void build() override;
     Tensor forward(const Tensor& input) override;
     Tensor backward(const Tensor& grad) override;
@@ -16,6 +13,7 @@ public:
     void load_json(const json& j) override;
 
 private:
-	Tensor _last_output;
-    inline static AutoRegisterLayer<LayerSigmoid> enregistrement{};
+    Shape _shape_input_batch_save;
+    size_t _total = 1;
+    inline static AutoRegisterLayer<LayerFlatten> enregistrement{};
 };

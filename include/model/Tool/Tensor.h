@@ -7,9 +7,11 @@
 #include <stdexcept>
 #include <xtensor/generators/xbuilder.hpp>
 #include <xtensor/core/xmath.hpp>
+#include <xtensor/io/xjson.hpp>
 
 #include "model/Tool/Shape.h"
 #include "outil/Print.h"
+#include "model/Json/Json_gestion.h"
 
 /*
 La Class tenor est juste la pour faire tampon et donc si je veux plus tard remplacer par des tansor fait a la main c facile, bon peu de chance etant donné la perte de perf mais on sait jamais
@@ -91,6 +93,30 @@ public:
 
     Tensor operator>(float scalar) const;
 
+    //ajout pour la convolution
+    template<typename... Args>
+    float& operator()(Args... args){
+        return data(args...);
+    }
+
+    template<typename... Args>
+    float operator()(Args... args) const{
+        return data(args...);
+    }
+
+    // pour le flatten
+    Tensor& reshape(Shape format);
+
+
 private:
     xt::xarray<float> data;
 };
+
+inline void from_json(const json& j, Tensor& tensor) {
+    tensor = Tensor(j.get<xt::xarray<float>>());
+    tensor.recalul_shape();
+}
+
+inline void to_json(json& j, const Tensor& tensor) {
+    j = tensor.recup_data();
+}

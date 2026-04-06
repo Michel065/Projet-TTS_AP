@@ -1,13 +1,10 @@
 #pragma once
 #include "model/Layer.h"
 
-class LayerSigmoid : public Layer {
+class LayerMaxPool2D : public Layer {
 public:
-    LayerSigmoid() : Layer("Sigmoid"){}
+    LayerMaxPool2D();
 
-    Tensor sigmoid(const Tensor& x);
-    Tensor sigmoid_grad();
-    
     void build() override;
     Tensor forward(const Tensor& input) override;
     Tensor backward(const Tensor& grad) override;
@@ -16,6 +13,10 @@ public:
     void load_json(const json& j) override;
 
 private:
-	Tensor _last_output;
-    inline static AutoRegisterLayer<LayerSigmoid> enregistrement{};
+    size_t _channels = 1;
+
+    size_t _last_batch;
+    Tensor _mask; // pour backward (position du max)
+
+    inline static AutoRegisterLayer<LayerMaxPool2D> enregistrement{};
 };

@@ -21,3 +21,7 @@ Tensor LayerSigmoid::forward(const Tensor& input){
 Tensor LayerSigmoid::backward(const Tensor& grad){
     return grad * sigmoid_grad();
 }
+
+void LayerSigmoid::to_json(json& j) const {}
+
+void LayerSigmoid::load_json(const json& j) {}

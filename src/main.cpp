@@ -13,8 +13,11 @@
 #include "model/Layer_activation/Layer_softmax.h"
 #include "model/Tool/Shape.h"
 #include "model/Callback/CallbackEarlyStopLoss.h"
+#include "model/Layer_conv/LayerConv2D.h"
+#include "model/Layer_conv/LayerFlatten.h"
+#include "model/Layer_conv/LayerMaxPool2D.h"
 
-void test_actu(){
+void test_non_lineaire(){
     Tensor X, y, x_test;
     get_data_non_lineaire(X, y, x_test,1000);
 
@@ -32,23 +35,92 @@ void test_actu(){
     model.add(new LayerRelu());
     model.add(new LayerDense(nbr_neur_out));
     model.add(new LayerSigmoid());
-
-    model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
+    //model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
 
     //model.set_affichge_level(1);
 
     Print("entrainement.");
-    model.fit(X,y,500,4);
+    model.fit(X,y,150,4);
     
     Print("Test:");
     Tensor y_test = model.predict(x_test).round(2)*100;
-    Print("Prediction :",y_test);/**/
+    Print("Prediction :",y_test);
 
     //model.print();
     //model.create_graph_loss_entrainement();
+    model.save("./models/model.json");
+    
+}
+
+void test_load(){
+    Tensor X, y, x_test;
+    get_data_non_lineaire(X, y, x_test,1000);
+
+    Model model("./models/model.json");
+    model.set_loss_function(new LossBinaryCrossEntropy());
+    
+
+    Print("Test:");
+    Tensor y_test = model.predict(x_test).round(2)*100;
+    Print("Prediction :",y_test);
+}
+
+void test_CNN(){
+    Tensor X, y, x_test, y_test;
+    get_data_CNN(X, y, x_test,y_test);
+
+    Print("construction model.");
+    Model model({.input_shape = Shape({1,28,28}), .eta = 0.11});
+
+    model.add(new LayerConv2D(8,3));
+    model.add(new LayerRelu());
+    model.add(new LayerMaxPool2D());
+ 
+    model.add(new LayerConv2D(16,3));
+    model.add(new LayerRelu());
+    model.add(new LayerMaxPool2D());
+
+    model.add(new LayerFlatten());
+
+    model.add(new LayerDense(64));
+    model.add(new LayerRelu());
+    model.add(new LayerDense(10));
+    model.add(new LayerSigmoid());
+    //model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
+
+    model.set_affichge_level(1);
+
+    Print("entrainement.");
+    model.fit(X,y,20,4);
+    
+    Print("Test:");
+    Tensor pred = model.predict(x_test);
+    for(size_t i = 0; i < x_test.shape[0]; i++){
+        size_t p_class = 0;
+        float max_pred = pred(i,0);
+        for(size_t j = 1; j < 10; j++){
+            if(pred(i,j) > max_pred){
+                max_pred = pred(i,j);
+                p_class = j;
+            }
+        }
+        size_t r_class = 0;
+        for(size_t j = 0; j < 10; j++){
+            if(y_test(i,j) == 1.0f){
+                r_class = j;
+                break;
+            }
+        }
+        Print("Image ", i, " pred:", p_class, " vrai:", r_class);
+    }
+
+    model.print();
+    model.create_graph_loss_entrainement();
+    model.save("./models/model.json");
+    
 }
 
 int main() {
-    test_actu();
+    test_CNN();
     return 0;
 }

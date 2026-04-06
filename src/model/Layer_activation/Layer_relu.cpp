@@ -21,3 +21,7 @@ Tensor LayerRelu::forward(const Tensor& input){
 Tensor LayerRelu::backward(const Tensor& grad){
     return grad * relu_grad();
 }
+
+void LayerRelu::to_json(json& j) const {}
+
+void LayerRelu::load_json(const json& j) {}

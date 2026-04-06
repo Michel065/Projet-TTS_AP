@@ -6,7 +6,7 @@ Tensor LayerSoftMax::softmax(const Tensor& x){
     }
     Tensor shifted = x - x.max_per_row();
     Tensor exp_x = shifted.exp();
-    float eps = 1e-8f;
+    float eps = 1e-6f;
     Tensor sum_exp = exp_x.sum_per_row()+eps;
     return exp_x / sum_exp;
 }
@@ -24,3 +24,7 @@ Tensor LayerSoftMax::forward(const Tensor& input){
 Tensor LayerSoftMax::backward(const Tensor& grad){
     return grad;
 }
+
+void LayerSoftMax::to_json(json& j) const {}
+
+void LayerSoftMax::load_json(const json& j) {}
