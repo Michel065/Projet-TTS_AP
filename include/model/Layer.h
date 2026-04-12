@@ -1,5 +1,5 @@
 #pragma once
-#include "model/Tool/Tensor.h"
+#include "model/Tool/Tensor/Tensor.h"
 #include "model/Tool/Shape.h"
 #include "outil/Print.h"
 #include "model/Json/Json_gestion.h"

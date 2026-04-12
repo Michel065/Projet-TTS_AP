@@ -124,7 +124,7 @@ void test_CNN(){
 }
 
 int main() {
-    test_non_lineaire();
+    test_CNN();
     
     return 0;
 }

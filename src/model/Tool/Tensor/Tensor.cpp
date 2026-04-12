@@ -1,6 +1,6 @@
-#include "model/Tool/TensorData/TensorDataCPU.h"
-#include "model/Tool/TensorData/TensorDataBase.h"
-#include "model/Tool/Tensor.h"
+#include "model/Tool/Tensor/TensorDataCPU.h"
+#include "model/Tool/Tensor/TensorDataBase.h"
+#include "model/Tool/Tensor/Tensor.h"
 
 //tous les ops dans Tensor.cpp
 Tensor::Tensor(DeviceType _device) :device(_device), _data(nullptr) {

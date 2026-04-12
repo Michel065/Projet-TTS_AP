@@ -1,5 +1,5 @@
-#include "model/Tool/TensorData/TensorDataCPU.h"
-#include "model/Tool/Tensor.h"
+#include "model/Tool/Tensor/TensorDataCPU.h"
+#include "model/Tool/Tensor/Tensor.h"
 
 TensorDataBase* TensorDataCPU::clone() const{
     return new TensorDataCPU(*this);
@@ -135,6 +135,7 @@ void TensorDataCPU::reshape(Shape format) {
         Throw_Error("Tensor ", shape.print(), " reshape impossible vers ", format.print());
     }
     data_cpu.reshape(format.dims);
+    shape=format;
 }
 
 

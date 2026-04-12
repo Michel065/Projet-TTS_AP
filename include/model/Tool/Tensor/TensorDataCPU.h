@@ -9,7 +9,7 @@
 #include <xtensor/core/xmath.hpp>
 #include <xtensor/io/xjson.hpp>
 
-#include "model/Tool/TensorData/TensorDataBase.h"
+#include "model/Tool/Tensor/TensorDataBase.h"
 
 class TensorDataCPU : public TensorDataBase {
 private:

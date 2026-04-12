@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "model/Tool/Tensor.h"
+#include "model/Tool/Tensor/Tensor.h"
 
 class Loss {
 public:

@@ -5,8 +5,8 @@
 #include <iostream>
 #include <xtensor/containers/xarray.hpp>
 
-#include "model/Tool/TensorData/TensorDataBase.h"
-#include "model/Tool/CudaData.h"
+#include "model/Tool/Tensor/TensorDataBase.h"
+#include "model/Tool/Tensor/CudaData.h"
 
 class TensorDataGPU : public TensorDataBase {
 private:

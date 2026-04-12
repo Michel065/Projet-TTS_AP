@@ -1,5 +1,5 @@
 #pragma once
-#include "model/Tool/Tensor.h"
+#include "model/Tool/Tensor/Tensor.h"
 #include "model/Loss/Loss.h"
 
 class LossBinaryCrossEntropy : public Loss {
