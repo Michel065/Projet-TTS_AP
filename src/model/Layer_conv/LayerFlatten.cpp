@@ -19,7 +19,7 @@ void LayerFlatten::build(){
     print_couche_msg("Build termine.", Color::GREEN);
 }
 
-Tensor LayerFlatten::forward(const Tensor& input){
+Tensor LayerFlatten::forward(Tensor& input){
     _shape_input_batch_save = input.shape;
 
     size_t batch = input.shape[0];

@@ -1,7 +1,8 @@
+#include <xtensor/containers/xarray.hpp>
 #include "test.h"
 
 void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test){
-    X = Tensor(std::vector<std::vector<float>>{
+    X = Tensor(DeviceType::CPU,{
         {-1.0f, -1.0f},
         {-1.2f, -0.8f},
         {-0.8f, -1.1f},
@@ -13,7 +14,7 @@ void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test){
         { 1.1f,  1.3f}
     });
 
-    y = Tensor(std::vector<std::vector<float>>{
+    y = Tensor(DeviceType::CPU,{
         {1.0f, 0.0f},
         {1.0f, 0.0f},
         {1.0f, 0.0f},
@@ -25,15 +26,15 @@ void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test){
         {0.0f, 1.0f}
     });
 
-    x_test = Tensor(std::vector<std::vector<float>>{
+    x_test = Tensor(DeviceType::CPU,{
         { 0.9f,  1.0f},
         {-0.9f, -1.0f}
     });
 }
 
 void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n){
-    X = Tensor(Shape({n, 2}));
-    y = Tensor(Shape({n, 1}));
+    X = Tensor(DeviceType::CPU,Shape({n, 2}));
+    y = Tensor(DeviceType::CPU,Shape({n, 1}));
 
     float r1 = 1.0f;
     float r2 = 2.0f;
@@ -50,9 +51,9 @@ void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n){
         float dist = std::sqrt(x * x + yy * yy);
 
         if(dist >= r1 && dist <= r2){
-            X.set({(int)idx, 0}, x);
-            X.set({(int)idx, 1}, yy);
-            y.set({(int)idx, 0}, 1.0f);
+            X.set({idx, 0}, x);
+            X.set({idx, 1}, yy);
+            y.set({idx, 0}, 1.0f);
             idx++;
         }
     }
@@ -63,14 +64,14 @@ void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n){
         float dist = std::sqrt(x * x + yy * yy);
 
         if(dist < r1 || dist > r2){
-            X.set({(int)idx, 0}, x);
-            X.set({(int)idx, 1}, yy);
-            y.set({(int)idx, 0}, 0.0f);
+            X.set({idx, 0}, x);
+            X.set({idx, 1}, yy);
+            y.set({idx, 0}, 0.0f);
             idx++;
         }
     }
 
-    x_test = Tensor(std::vector<std::vector<float>>{
+    x_test = Tensor(DeviceType::CPU,{
         {1.5f, 0.0f},
         {1.2f, 0.8f},
         {0.3f, 0.3f},
@@ -78,7 +79,6 @@ void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n){
         {2.5f, 1.5f}
     });
 }
-
 
 
 
@@ -93,34 +93,28 @@ static uint32_t read_uint32_be(std::ifstream& file){
            uint32_t(bytes[3]);
 }
 
-void get_data_CNN(Tensor& X, Tensor& y, Tensor& x_test, Tensor& y_test){
+void get_data_CNN(Tensor& X, Tensor& y, Tensor& x_test, Tensor& y_test,DeviceType device){
     std::string path_images = "./data/mnist/t10k-images-idx3-ubyte";
     std::string path_labels = "./data/mnist/t10k-labels-idx1-ubyte";
     std::ifstream file_images(path_images, std::ios::binary);
     std::ifstream file_labels(path_labels, std::ios::binary);
     uint32_t magic_images = read_uint32_be(file_images);
     uint32_t nb_images = read_uint32_be(file_images);
-
     uint32_t magic_labels = read_uint32_be(file_labels);
-
     if(magic_images != 2051){
         Throw_Error("Magic number images invalide.");
         return;
     }
-
     if(magic_labels != 2049){
         Throw_Error("Magic number labels invalide.");
         return;
     }
-
     size_t nb_test = 10;
     size_t nb_train = nb_images - nb_test;
-
-    X = Tensor(Shape({nb_train, 1, 28, 28}), false);
-    y = Tensor(Shape({nb_train, 10}), false);
-    x_test = Tensor(Shape({nb_test, 1, 28, 28}), false);
-    y_test = Tensor(Shape({nb_test, 10}), false);
-
+    xt::xarray<float> arr_X = xt::zeros<float>(std::vector<size_t>{nb_train, 1, 28, 28});
+    xt::xarray<float> arr_y = xt::zeros<float>(std::vector<size_t>{nb_train, 10});
+    xt::xarray<float> arr_x_test = xt::zeros<float>(std::vector<size_t>{nb_test, 1, 28, 28});
+    xt::xarray<float> arr_y_test = xt::zeros<float>(std::vector<size_t>{nb_test, 10});
     for(size_t i = 0; i < nb_images; i++){
         unsigned char label_char;
         file_labels.read(reinterpret_cast<char*>(&label_char), 1);
@@ -133,18 +127,23 @@ void get_data_CNN(Tensor& X, Tensor& y, Tensor& x_test, Tensor& y_test){
                 float pixel = float(pixel_char) / 255.0f;
 
                 if(i < nb_test){
-                    x_test(i, 0, r, c) = pixel;
+                    arr_x_test(i, 0, r, c) = pixel;
                 }else{
-                    X(i - nb_test, 0, r, c) = pixel;
+                    arr_X(i - nb_test, 0, r, c) = pixel;
                 }
             }
         }
 
         if(i < nb_test){
-            y_test(i, label) = 1.0f;
+            arr_y_test(i, label) = 1.0f;
         }else{
-            y(i - nb_test, label) = 1.0f;
+            arr_y(i - nb_test, label) = 1.0f;
         }
     }
+
+    X = Tensor(device, arr_X);
+    y = Tensor(device, arr_y);
+    x_test = Tensor(device, arr_x_test);
+    y_test = Tensor(device, arr_y_test);
     Print("nb_images au total : ",nb_images);
 }

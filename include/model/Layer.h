@@ -18,10 +18,11 @@ public:
     Shape get_input_shape();
 
     void set_model(Model* model_global);
+    virtual void get_from_model() {};
 
     virtual void build() = 0;
 
-    virtual Tensor forward(const Tensor& input) = 0;
+    virtual Tensor forward(Tensor& input) = 0;
     virtual Tensor backward(const Tensor& grad) = 0;
 
     void print_couche_msg(std::string msg,Color couleur = Color::DEFAULT);

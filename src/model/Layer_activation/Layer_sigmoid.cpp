@@ -1,7 +1,7 @@
 #include "model/Layer_activation/Layer_sigmoid.h"
 
 Tensor LayerSigmoid::sigmoid(const Tensor& x){
-    return 1.0 / (1 + (-x).exp());
+    return 1.0 / (1 + (0-x).exp());
 }
 
 Tensor LayerSigmoid::sigmoid_grad(){
@@ -13,7 +13,7 @@ void LayerSigmoid::build(){
     print_couche_msg("Build termine.",Color::GREEN);
 }
 
-Tensor LayerSigmoid::forward(const Tensor& input){
+Tensor LayerSigmoid::forward(Tensor& input){
     _last_output = sigmoid(input);
     return _last_output;
 }

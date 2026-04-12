@@ -14,6 +14,7 @@ Model::Model(ModelConfig model_config){
 	_input_shape=model_config.input_shape;
 	_eta=model_config.eta;
 	_loss_function=model_config.loss_function;
+	_device=model_config.device;
 }
 
 void Model::print(){
@@ -28,6 +29,7 @@ void Model::print(){
 
 void Model::add(Layer* layer){
 	layer->set_model(this);
+	layer->get_from_model();
 	if(!_layers.empty()){
         layer->set_input_shape(_layers.back()->get_output_shape());
     }
@@ -37,7 +39,7 @@ void Model::add(Layer* layer){
 	_layers.push_back(layer);
 }
 
-Tensor Model::forward(const Tensor& input){
+Tensor Model::forward(Tensor& input){
     Tensor tmp = input;
     Tensor tmp_save = input;
     for(size_t i = 0; i < _layers.size(); ++i){
@@ -121,16 +123,6 @@ void Model::create_graph_loss_entrainement(){
 	create_graphs_loss(_train_loss_history);
 }
 
-void Model::fit(const std::vector<std::vector<float>>& X,const std::vector<std::vector<float>>& y,int epochs,int batch_size)
-{
-    fit(Tensor(X), Tensor(y), epochs, batch_size);
-}
-
-void Model::fit(const std::vector<float>& X,const std::vector<float>& y,int epochs,int batch_size)
-{
-    fit(Tensor(X), Tensor(y), epochs, batch_size);
-}
-
 Tensor Model::predict(Tensor input){
 	return forward(input);
 }
@@ -208,5 +200,10 @@ void Model::load_path(std::string path) {
 
 void Model::add_from_save(Layer* layer){
 	layer->set_model(this);
+	layer->get_from_model();
 	_layers.push_back(layer);
+}
+
+DeviceType  Model::get_device() const{
+	return _device;
 }

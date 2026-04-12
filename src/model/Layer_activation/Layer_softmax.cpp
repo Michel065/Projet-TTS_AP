@@ -16,7 +16,7 @@ void LayerSoftMax::build(){
     print_couche_msg("Build termine.",Color::GREEN);
 }
 
-Tensor LayerSoftMax::forward(const Tensor& input){
+Tensor LayerSoftMax::forward(Tensor& input){
     _last_output = softmax(input);
     return _last_output;
 }

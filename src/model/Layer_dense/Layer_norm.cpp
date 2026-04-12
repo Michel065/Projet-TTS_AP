@@ -1,12 +1,14 @@
 #include "model/Layer_dense/Layer_norm.h"
+#include "model/model.h"
 
 LayerNormalisation::LayerNormalisation(): Layer("Normalisation"){}
 
-LayerNormalisation::LayerNormalisation(std::vector<float> min, std::vector<float> max,TypeNormalisation type_norm): Layer("Normalisation"),_type_norm(type_norm){
-    _min = Tensor({min}).transpose();
-    _max = Tensor({max}).transpose();
-    
-    if(_max == _min)
+LayerNormalisation::LayerNormalisation(xt::xarray<float> min, xt::xarray<float> max,TypeNormalisation type_norm): Layer("Normalisation"),_type_norm(type_norm){
+    _device = DeviceType::CPU;
+
+    _vmin = min;
+    _vmax = max;
+    if(xt::all(xt::equal(_vmax, _vmin)))
         Throw_Error("max ne peut pas etre egal a min (LayerNormalisation)");
 }
 
@@ -29,10 +31,18 @@ Tensor LayerNormalisation::calc_alternative_grad(const Tensor& grad){
 
 void LayerNormalisation::build(){
     set_output_shape(_shape_input);
+    _min = Tensor(_device,_vmin).transpose();
+    _max = Tensor(_device,_vmax).transpose();
     print_couche_msg("Build termine.", Color::GREEN);
 }
 
-Tensor LayerNormalisation::forward(const Tensor& input){
+void LayerNormalisation::get_from_model(){
+    if(_model != nullptr)
+        return;
+    _device = _model->get_device();
+}
+
+Tensor LayerNormalisation::forward(Tensor& input){
     switch(_type_norm){
         case TypeNormalisation::DEFAULT:
             return calc_defaut(input);

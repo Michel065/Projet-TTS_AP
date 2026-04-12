@@ -1,0 +1,57 @@
+#pragma once
+
+#include <cstddef>
+#include "model/Tool/Shape.h"
+
+class Tensor;
+
+class TensorDataBase {
+public:
+    virtual ~TensorDataBase() = default;
+
+    virtual TensorDataBase* clone() const = 0;
+    
+    virtual void apply_add(const Tensor& b) = 0;
+    virtual void apply_sub(const Tensor& b) = 0;
+    virtual void apply_mul(const Tensor& b) = 0;
+    virtual void apply_div(const Tensor& b) = 0;
+
+    virtual void apply_add(float scalar) = 0;
+    virtual void apply_sub(float scalar) = 0;
+    virtual void apply_mul(float scalar) = 0;
+    virtual void apply_div(float scalar) = 0;
+
+
+    //methode qui modifie nos data Tensor
+    virtual void init(Shape shape, bool alea, int val_init) = 0;
+    virtual void init_with_data(const xt::xarray<float>& arr) = 0;
+    virtual void fill_alea() = 0;
+    virtual void apply_exp() = 0;
+    virtual void apply_pow(float val) = 0;
+    virtual void apply_max(float val) = 0;
+    virtual void apply_round(int decimals) = 0;
+    virtual void apply_clip(float b_min, float b_max) = 0;
+    virtual void apply_log() = 0;
+    virtual void calcul_sup(float scalar) = 0;
+    virtual void transpose() = 0;
+    virtual void reshape(Shape format) = 0;
+
+    //methode qui créer un nouveau Tensor
+    virtual Tensor matmul(Shape shape_a,const Tensor& b) const = 0;
+    virtual Tensor sum_axis(std::size_t axis, bool keep_dims) const = 0;
+    virtual Tensor sum_per_row() const = 0;
+    virtual Tensor max_per_row() const = 0;
+    virtual Tensor extraction_section_axe_0(Shape shape_a, int debut, int fin) const = 0;
+
+    //methode autre
+    virtual bool equal(const Tensor& b) const = 0;
+    virtual std::vector<size_t> recalul_shape() const = 0;
+    virtual float moyenne() const = 0;
+    virtual bool scan_for_Nan(bool throww) const = 0;
+    virtual const xt::xarray<float>& get_format_xr() const = 0;
+
+    //methode pour modifier un element par element ( au cas ou, pas utile en theorie)
+    virtual float get(const std::vector<size_t>& indices) const = 0;
+    virtual void set(const std::vector<size_t>& indices, float val) = 0;
+
+};

@@ -35,7 +35,8 @@ void test_non_lineaire(){
     model.add(new LayerRelu());
     model.add(new LayerDense(nbr_neur_out));
     model.add(new LayerSigmoid());
-    //model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
+    model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
+    model.set_loss_function(new LossBinaryCrossEntropy());
 
     //model.set_affichge_level(1);
 
@@ -47,8 +48,8 @@ void test_non_lineaire(){
     Print("Prediction :",y_test);
 
     //model.print();
-    //model.create_graph_loss_entrainement();
-    model.save("./models/model.json");
+    model.create_graph_loss_entrainement();
+    //model.save("./models/model.json");
     
 }
 
@@ -91,22 +92,22 @@ void test_CNN(){
     model.set_affichge_level(1);
 
     Print("entrainement.");
-    model.fit(X,y,20,4);
+    model.fit(X,y,1,4);
     
     Print("Test:");
     Tensor pred = model.predict(x_test);
     for(size_t i = 0; i < x_test.shape[0]; i++){
         size_t p_class = 0;
-        float max_pred = pred(i,0);
+        float max_pred = pred.get({i,0});
         for(size_t j = 1; j < 10; j++){
-            if(pred(i,j) > max_pred){
-                max_pred = pred(i,j);
+            if(pred.get({i,j}) > max_pred){
+                max_pred = pred.get({i,j});
                 p_class = j;
             }
         }
         size_t r_class = 0;
         for(size_t j = 0; j < 10; j++){
-            if(y_test(i,j) == 1.0f){
+            if(y_test.get({i,j}) == 1.0f){
                 r_class = j;
                 break;
             }

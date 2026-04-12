@@ -1,6 +1,6 @@
 #include "model/Layer_activation/Layer_relu.h"
 
-Tensor LayerRelu::relu(const Tensor& x){
+Tensor LayerRelu::relu(Tensor& x){
     return x.max();
 }
 
@@ -13,7 +13,7 @@ void LayerRelu::build(){
     print_couche_msg("Build termine.",Color::GREEN);
 }
 
-Tensor LayerRelu::forward(const Tensor& input){
+Tensor LayerRelu::forward(Tensor& input){
     _last_output = relu(input);
     return _last_output;
 }

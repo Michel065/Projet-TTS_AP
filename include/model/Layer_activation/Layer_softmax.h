@@ -8,7 +8,7 @@ public:
     Tensor softmax(const Tensor& x);
 
     void build() override;
-    Tensor forward(const Tensor& input) override;
+    Tensor forward(Tensor& input) override;
     Tensor backward(const Tensor& grad) override;
 
     void to_json(json& j) const override;

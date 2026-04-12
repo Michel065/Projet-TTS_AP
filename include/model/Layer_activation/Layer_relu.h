@@ -5,11 +5,11 @@ class LayerRelu : public Layer {
 public:
     LayerRelu() : Layer("Relu"){}
 
-    Tensor relu(const Tensor& x);
+    Tensor relu(Tensor& x);
     Tensor relu_grad();
 
     void build() override;
-    Tensor forward(const Tensor& input) override;
+    Tensor forward(Tensor& input) override;
     Tensor backward(const Tensor& grad) override;
 
     void to_json(json& j) const override;

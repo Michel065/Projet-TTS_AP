@@ -14,6 +14,7 @@ struct ModelConfig {
 	Shape input_shape;
 	float eta=0.01f;
 	Loss* loss_function = new LossBinaryCrossEntropy();
+	DeviceType device = DeviceType::CPU;
 };
 
 class Model {
@@ -22,15 +23,14 @@ public:
 	Model(ModelConfig model_config);
 	
 	void add(Layer* layer);
-	Tensor forward(const Tensor& input);
+	Tensor forward(Tensor& input);
 	void backward(Tensor grad);
 	Tensor predict(Tensor input);
 	void fit(Tensor input,Tensor y,int epochs=50,int batch_size=64);
-	void fit(const std::vector<std::vector<float>>& X,const std::vector<std::vector<float>>& y,int epochs=50,int batch_size=64);
-	void fit(const std::vector<float>& X,const std::vector<float>& y,int epochs=50,int batch_size=64);
 	void create_graph_loss_entrainement();
 	void set_affichge_level(int val=0);
 	float get_eta() const;
+	DeviceType get_device() const;
 	std::vector<float>& get_history();
 	void print();
 	void add_callback(Callback* callback);
@@ -49,6 +49,7 @@ private:
 	Loss* _loss_function;
 	int _type_aff=0;
     std::vector<Callback*> _callbacks;
+	DeviceType _device;
 
 	const std::vector<Layer*>& get_layers() const;
 	Shape get_shape_input() const;
