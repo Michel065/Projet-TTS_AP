@@ -46,11 +46,9 @@ Tensor LayerNormalisation::forward(Tensor& input){
     switch(_type_norm){
         case TypeNormalisation::DEFAULT:
             return calc_defaut(input);
-
         case TypeNormalisation::ALTERNATIVE:
             return calc_alternative(input);
     }
-
     Throw_Error("TypeNormalisation inconnu");
     return input;
 }

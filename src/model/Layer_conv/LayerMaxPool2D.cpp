@@ -18,12 +18,14 @@ void LayerMaxPool2D::build(){
 }
 
 Tensor LayerMaxPool2D::forward(Tensor& input){
-    _last_batch = input.shape[0];
+    Shape shape_i= input.get_shape();
+
+    _last_batch = shape_i[0];
     size_t out_H = _shape_output[1];
     size_t out_W = _shape_output[2];
 
     Tensor output(input.get_device(),Shape({_last_batch, _channels, out_H, out_W}), false);
-    _mask = Tensor(input.get_device(),input.shape, false);// pour replacer la val lors du back
+    _mask = Tensor(input.get_device(),shape_i, false);// pour replacer la val lors du back
 
     for(size_t b = 0; b < _last_batch; b++){
         for(size_t c = 0; c < _channels; c++){

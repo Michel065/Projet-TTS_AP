@@ -20,13 +20,13 @@ void LayerFlatten::build(){
 }
 
 Tensor LayerFlatten::forward(Tensor& input){
-    _shape_input_batch_save = input.shape;
+    _shape_input_batch_save = input.get_shape();
 
-    size_t batch = input.shape[0];
+    size_t batch = _shape_input_batch_save[0];
     size_t total = 1;
 
-    for(size_t i = 1; i < (size_t)input.shape.len(); i++){
-        total *= input.shape[i];
+    for(size_t i = 1; i < (size_t)_shape_input_batch_save.len(); i++){
+        total *= _shape_input_batch_save[i];
     }
 
     Tensor output = input;

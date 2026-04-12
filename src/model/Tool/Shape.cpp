@@ -3,10 +3,16 @@
 int Shape::len() const {return dims.size();}
 
 size_t& Shape::operator[](size_t i) {
+    if(i>=(size_t)len()){
+        Throw_Error("Shape dim invalide i:",i," len :",len());
+    }
     return dims[i];
 }
 
 const size_t& Shape::operator[](size_t i) const {
+    if(i>=(size_t)len()){
+        Throw_Error("Shape dim invalide i:",i," len :",len());
+    }
     return dims[i];
 }
 

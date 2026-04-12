@@ -1,28 +1,30 @@
 #pragma once
 
-#include <xtensor/containers/xarray.hpp>
-#include <xtensor/io/xio.hpp>
-#include <random>
 #include <vector>
 #include <stdexcept>
-#include <xtensor/generators/xbuilder.hpp>
-#include <xtensor/core/xmath.hpp>
-#include <xtensor/io/xjson.hpp>
+#include <iostream>
+#include <xtensor/containers/xarray.hpp>
 
 #include "model/Tool/TensorData/TensorDataBase.h"
+#include "model/Tool/CudaData.h"
 
-class TensorDataCPU : public TensorDataBase {
+class TensorDataGPU : public TensorDataBase {
 private:
-    xt::xarray<float> data_cpu;
+    CudaData data_gpu;
+    std::vector<size_t> shape_gpu;
 
 public:
-    TensorDataCPU() = default;
-    explicit TensorDataCPU(const xt::xarray<float>& d) : data_cpu(d) {}
+    TensorDataGPU() = default;
+    ~TensorDataGPU() override;
 
-    const TensorDataCPU* check_cpu(const Tensor& a) const ;
+    TensorDataGPU(const TensorDataGPU&) = delete;
+    TensorDataGPU& operator=(const TensorDataGPU&) = delete;
+
+    const TensorDataGPU* check_gpu(const Tensor& a) const;
 
     TensorDataBase* clone() const override;
-    //les ops
+
+    // les ops
     void apply_add(const Tensor& b) override;
     void apply_sub(const Tensor& b) override;
     void apply_mul(const Tensor& b) override;
@@ -32,8 +34,8 @@ public:
     void apply_sub(float scalar) override;
     void apply_mul(float scalar) override;
     void apply_div(float scalar) override;
-    
-    //methode qui modifie nos data Tensor
+
+    // methode qui modifie nos data Tensor
     void init(Shape _shape, bool alea, int val_init) override;
     void init_with_data(const xt::xarray<float>& arr) override;
     void fill_alea() override;
@@ -46,25 +48,32 @@ public:
     void calcul_sup(float scalar) override;
     void transpose() override;
     void reshape(Shape format) override;
-    
-    //methode qui créer un nouveau Tensor
+
+    // methode qui crée un nouveau Tensor
     Tensor matmul(const Tensor& b) const override;
     Tensor sum_axis(std::size_t axis, bool keep_dims) const override;
     Tensor sum_per_row() const override;
     Tensor max_per_row() const override;
     Tensor extraction_section_axe_0(int debut, int fin) const override;
 
-    //methode autre
+    // methode autre
     bool equal(const Tensor& b) const override;
     void recalul_shape() override;
     float moyenne() const override;
     bool scan_for_Nan(bool throww) const override;
     const xt::xarray<float>& get_format_xr() const override;
-    friend std::ostream& operator<<(std::ostream& os, const TensorDataCPU* t);
+    friend std::ostream& operator<<(std::ostream& os, const TensorDataGPU* t);
 
-    //methode pour modifier un element par element
+    // methode pour modifier un element par element
     float get(const std::vector<size_t>& indices) const override;
     void set(const std::vector<size_t>& indices, float val) override;
 
-    friend class Tensor;   
+    friend class Tensor;
+
+private:
+    size_t get_total_size() const;
+    void alloc_gpu(size_t n);
+    void free_gpu();
+    xt::xarray<float> copy_to_cpu() const;
+    void copy_from_cpu(const xt::xarray<float>& arr);
 };

@@ -3,24 +3,22 @@
 #include "model/Tool/Tensor.h"
 
 //tous les ops dans Tensor.cpp
-Tensor::Tensor(DeviceType _device) : shape(), device(_device), _data(nullptr) {
+Tensor::Tensor(DeviceType _device) :device(_device), _data(nullptr) {
     init_data_struct();
 }
 
-Tensor::Tensor(DeviceType _device, Shape _shape, bool alea, int val_init) : shape(_shape), device(_device), _data(nullptr){
+Tensor::Tensor(DeviceType _device, Shape _shape, bool alea, int val_init) : device(_device), _data(nullptr){
     init_data_struct();
     _data->init(_shape,alea,val_init);
 }
 
 Tensor::Tensor(const Tensor& other){
     device = other.device;
-    shape = other.shape;
     _data = (other._data != nullptr) ? other._data->clone() : nullptr;
 }
 
 Tensor::Tensor(Tensor&& other) noexcept{
     device = other.device;
-    shape = other.shape;
     _data = other._data;
     other._data = nullptr;
 }
@@ -29,7 +27,7 @@ Tensor::~Tensor(){
 }
 
 //constructeur avec data:
-Tensor::Tensor(DeviceType _device,const xt::xarray<float>& arr) : shape(), device(_device), _data(nullptr){
+Tensor::Tensor(DeviceType _device,const xt::xarray<float>& arr) : device(_device), _data(nullptr){
     init_data_struct();
     _data->init_with_data(arr);
     recalul_shape();
@@ -79,21 +77,8 @@ Tensor& Tensor::log() {
 }
 
 Tensor& Tensor::reshape(Shape format){
-    size_t size_old = 1;
-    for(size_t i = 0; i < (size_t)shape.len(); i++){
-        size_old *= shape[i];
-    }
-
-    size_t size_new = 1;
-    for(size_t i = 0; i < (size_t)format.len(); i++){
-        size_new *= format[i];
-    }
-
-    if(size_old != size_new){
-        Throw_Error("Tensor ", shape.print(), " reshape impossible vers ", format.print());
-    }
+    check_data();
     _data->reshape(format);
-    shape = format;
     return *this;
 }
 
@@ -113,13 +98,7 @@ Tensor& Tensor::transpose(){
 //methode qui créer de nouveau Tensor
 Tensor Tensor::prod_mat(const Tensor& other) const {
     check_data();
-    if(shape.len() != 2 || other.shape.len() != 2)
-        Throw_Error("Produit matriciel 2D uniquement");
-
-    if(shape[1] != other.shape[0]){
-        Throw_Error("Produit matriciel impossible : Shapes incompatibles");
-    }
-    return _data->matmul(shape,other);
+    return _data->matmul(other);
 }
 
 
@@ -147,6 +126,7 @@ Tensor Tensor::max_per_row() const {
 }
 
 std::vector<Tensor> Tensor::separation_batch(int batch_size) const{
+    check_data();
     std::vector<Tensor> liste;
     if(batch_size <= -1)
         Throw_Error("batch_size invalide >= 0");
@@ -156,6 +136,7 @@ std::vector<Tensor> Tensor::separation_batch(int batch_size) const{
         return liste;
     }
 
+    Shape shape = _data->get_shape();
     if(shape.len() == 0)
         Throw_Error("Tensor invalide (Aucune dimension).");
 
@@ -175,7 +156,7 @@ std::vector<Tensor> Tensor::separation_batch(int batch_size) const{
 
 Tensor Tensor::extraction_section_axe_0(int debut, int fin) const{
     check_data();
-    return _data->extraction_section_axe_0(shape,debut,fin);
+    return _data->extraction_section_axe_0(debut,fin);
 }
 
 
@@ -207,7 +188,7 @@ bool Tensor::is_gpu() const{
 //methode void
 void Tensor::recalul_shape(){
     check_data();
-    shape = _data->recalul_shape();
+    _data->recalul_shape();
 }
 
 void Tensor::to_cpu(){
@@ -253,13 +234,18 @@ float Tensor::moyenne() const {
 
 
 int Tensor::size() const{
-   return shape.size(); 
+    check_data();
+   return _data->get_shape().size(); 
 }
 
 DeviceType Tensor::get_device() const{
     return device;
 }
 
+Shape Tensor::get_shape() const{
+    check_data();
+    return _data->get_shape();
+}
 
 
 

@@ -6,3 +6,5 @@
 
 void create_graphs_loss(std::vector<float>& histo_loss,int height=39, int width=155);
 
+void create_graphs_loss_screen(std::vector<float>& histo_loss,bool full=false);
+

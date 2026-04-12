@@ -7,6 +7,8 @@ class Tensor;
 
 class TensorDataBase {
 public:
+    Shape shape;
+    
     virtual ~TensorDataBase() = default;
 
     virtual TensorDataBase* clone() const = 0;
@@ -23,7 +25,7 @@ public:
 
 
     //methode qui modifie nos data Tensor
-    virtual void init(Shape shape, bool alea, int val_init) = 0;
+    virtual void init(Shape _shape, bool alea, int val_init) = 0;
     virtual void init_with_data(const xt::xarray<float>& arr) = 0;
     virtual void fill_alea() = 0;
     virtual void apply_exp() = 0;
@@ -37,15 +39,15 @@ public:
     virtual void reshape(Shape format) = 0;
 
     //methode qui créer un nouveau Tensor
-    virtual Tensor matmul(Shape shape_a,const Tensor& b) const = 0;
+    virtual Tensor matmul(const Tensor& b) const = 0;
     virtual Tensor sum_axis(std::size_t axis, bool keep_dims) const = 0;
     virtual Tensor sum_per_row() const = 0;
     virtual Tensor max_per_row() const = 0;
-    virtual Tensor extraction_section_axe_0(Shape shape_a, int debut, int fin) const = 0;
+    virtual Tensor extraction_section_axe_0(int debut, int fin) const = 0;
 
     //methode autre
     virtual bool equal(const Tensor& b) const = 0;
-    virtual std::vector<size_t> recalul_shape() const = 0;
+    virtual void recalul_shape() = 0;
     virtual float moyenne() const = 0;
     virtual bool scan_for_Nan(bool throww) const = 0;
     virtual const xt::xarray<float>& get_format_xr() const = 0;
@@ -53,5 +55,9 @@ public:
     //methode pour modifier un element par element ( au cas ou, pas utile en theorie)
     virtual float get(const std::vector<size_t>& indices) const = 0;
     virtual void set(const std::vector<size_t>& indices, float val) = 0;
+
+    Shape get_shape(){
+        return shape;
+    }
 
 };

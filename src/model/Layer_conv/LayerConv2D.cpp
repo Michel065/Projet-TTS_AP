@@ -48,9 +48,11 @@ void LayerConv2D::get_from_model(){
 Tensor LayerConv2D::forward(Tensor& input){
     _last_input = input;
 
-    size_t batch = input.shape[0];
-    size_t Hauteur = input.shape[2];
-    size_t Largeur = input.shape[3];
+    Shape shape_i= input.get_shape();
+
+    size_t batch = shape_i[0];
+    size_t Hauteur = shape_i[2];
+    size_t Largeur = shape_i[3];
 
     size_t pad = _kernel / 2;
     Tensor output(input.get_device(),Shape({batch, _nb_filters, Hauteur, Largeur}), false);
@@ -93,15 +95,17 @@ Tensor LayerConv2D::forward(Tensor& input){
 
 
 Tensor LayerConv2D::backward(const Tensor& grad){
-    size_t batch = _last_input.shape[0];
-    size_t Hauteur = _last_input.shape[2];
-    size_t Largeur = _last_input.shape[3];
+    Shape shape_i= _last_input.get_shape();
+    
+    size_t batch = shape_i[0];
+    size_t Hauteur = shape_i[2];
+    size_t Largeur = shape_i[3];
 
     size_t pad = _kernel / 2;
 
-    Tensor grad_W(grad.get_device(), _W.shape, false);
-    Tensor grad_b(grad.get_device(),_b.shape, false);
-    Tensor grad_prec(grad.get_device(),_last_input.shape, false);
+    Tensor grad_W(grad.get_device(), _W.get_shape(), false);
+    Tensor grad_b(grad.get_device(),_b.get_shape(), false);
+    Tensor grad_prec(grad.get_device(),shape_i, false);
 
     //grad_b
     for(size_t b = 0; b < batch; b++){

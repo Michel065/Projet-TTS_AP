@@ -42,6 +42,7 @@ void Model::add(Layer* layer){
 Tensor Model::forward(Tensor& input){
     Tensor tmp = input;
     Tensor tmp_save = input;
+	
     for(size_t i = 0; i < _layers.size(); ++i){
 		tmp_save = tmp;
         tmp = _layers[i]->forward(tmp);
@@ -119,8 +120,8 @@ void Model::fit(Tensor input,Tensor y,int epochs,int batch_size){
 	early_stop=false;
 }
 
-void Model::create_graph_loss_entrainement(){
-	create_graphs_loss(_train_loss_history);
+void Model::create_graph_loss_entrainement(bool full){
+	create_graphs_loss_screen(_train_loss_history,full);
 }
 
 Tensor Model::predict(Tensor input){

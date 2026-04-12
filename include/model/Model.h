@@ -27,7 +27,7 @@ public:
 	void backward(Tensor grad);
 	Tensor predict(Tensor input);
 	void fit(Tensor input,Tensor y,int epochs=50,int batch_size=64);
-	void create_graph_loss_entrainement();
+	void create_graph_loss_entrainement(bool full=false);
 	void set_affichge_level(int val=0);
 	float get_eta() const;
 	DeviceType get_device() const;

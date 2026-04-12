@@ -8,7 +8,6 @@ Tensor& Tensor::operator=(const Tensor& other){
     delete _data;
     _data = nullptr;
     device = other.device;
-    shape = other.shape;
     _data = (other._data != nullptr) ? other._data->clone() : nullptr;
     return *this;
 }
@@ -18,7 +17,6 @@ Tensor& Tensor::operator=(Tensor&& other) noexcept{
     if(this == &other) return *this;
     delete _data;
     device = other.device;
-    shape = other.shape;
     _data = other._data;
     other._data = nullptr;
     return *this;
@@ -168,7 +166,8 @@ Tensor Tensor::operator>(float scalar) const {
 }
 
 bool Tensor::operator==(const Tensor& other) const{
-    return shape.dims == other.shape.dims && _data->equal(other);
+    check_data();
+    return _data->get_shape().dims == other.get_shape().dims && _data->equal(other);
 }
 
 bool Tensor::operator!=(const Tensor& other) const{
@@ -184,7 +183,7 @@ std::string get_device_str(const DeviceType& d){
 }
 
 std::ostream& operator<<(std::ostream& os, const Tensor& t) {
-    os << "Tensor type:" << get_device_str(t.get_device()) << " shape=" << t.shape.print() << "\n";
+    os << "Tensor type:" << get_device_str(t.get_device()) << " shape=" << t.get_shape().print() << "\n";
     os << t.get_data_format_xr();
     return os;
 }

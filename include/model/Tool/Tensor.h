@@ -37,9 +37,6 @@ public:
     //constructeur avec data:
     Tensor(DeviceType _device,const xt::xarray<float>& arr);
 
-
-    Shape shape;
-
     //tous les ops dans TensorOps.cpp
     //utile:
     Tensor& operator=(const Tensor& other);
@@ -113,6 +110,7 @@ public:
     float moyenne() const;
     int size() const;
     DeviceType get_device() const;
+    Shape get_shape() const;
 
     //methode pour modifier un element par element
     float get(const std::vector<size_t>& indices) const;

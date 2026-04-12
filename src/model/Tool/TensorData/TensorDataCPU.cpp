@@ -65,13 +65,14 @@ void TensorDataCPU::apply_div(float scalar) {
 
 
 // methode qui modifie datacpu
-void TensorDataCPU::init(Shape shape, bool alea, int val_init){
+void TensorDataCPU::init(Shape _shape, bool alea, int val_init){
     if(!alea && val_init>0){
-        data_cpu = xt::ones<float>(shape.dims)*val_init;
+        data_cpu = xt::ones<float>(_shape.dims)*val_init;
     }else{
-        data_cpu = xt::zeros<float>(shape.dims);
+        data_cpu = xt::zeros<float>(_shape.dims);
     }
     if(alea)fill_alea();
+    shape=_shape;
 }
 
 void TensorDataCPU::init_with_data(const xt::xarray<float>& arr) {
@@ -120,6 +121,19 @@ void TensorDataCPU::transpose() {
 }
 
 void TensorDataCPU::reshape(Shape format) {
+    size_t size_old = 1;
+    for(size_t i = 0; i < (size_t)shape.len(); i++){
+        size_old *= shape[i];
+    }
+
+    size_t size_new = 1;
+    for(size_t i = 0; i < (size_t)format.len(); i++){
+        size_new *= format[i];
+    }
+
+    if(size_old != size_new){
+        Throw_Error("Tensor ", shape.print(), " reshape impossible vers ", format.print());
+    }
     data_cpu.reshape(format.dims);
 }
 
@@ -130,13 +144,25 @@ void TensorDataCPU::reshape(Shape format) {
 
 
 //methode qui créer un nouveau Tensor
-Tensor TensorDataCPU::matmul(Shape shape_a,const Tensor& b) const {// toujours facon naive sur CPU
+Tensor TensorDataCPU::matmul(const Tensor& b) const {// toujours facon naive sur CPU
     check_cpu(b);
-    Tensor res(DeviceType::CPU,Shape({shape_a[0], b.shape[1]}));
-    for(size_t i = 0; i < shape_a[0]; i++){
-        for(size_t j = 0; j < b.shape[1]; j++){
+    Shape shape_b = b.get_shape();
+
+    if(shape.len() != 2 || shape_b.len() != 2){
+        Print("shape a",shape.print());
+        Print("shape b",shape_b.print());
+        Throw_Error("Produit matriciel 2D uniquement");
+    }
+
+    if(shape[1] != shape_b[0]){
+        Throw_Error("Produit matriciel impossible : Shapes incompatibles");
+    }
+
+    Tensor res(DeviceType::CPU,Shape({shape[0], shape_b[1]}));
+    for(size_t i = 0; i < shape[0]; i++){
+        for(size_t j = 0; j < shape_b[1]; j++){
             float sum = 0.f;
-            for(size_t k = 0; k < shape_a[1]; k++){
+            for(size_t k = 0; k < shape[1]; k++){
                 sum += data_cpu(i,k) * b.get({k,j});
             }
             res.set({i,j},sum);
@@ -172,20 +198,19 @@ Tensor TensorDataCPU::max_per_row() const {
     return res;
 }
 
-Tensor TensorDataCPU::extraction_section_axe_0(Shape shape_a, int debut, int fin) const{
-    if(shape_a.len() == 0)
+Tensor TensorDataCPU::extraction_section_axe_0(int debut, int fin) const{
+    if(shape.len() == 0)
         Throw_Error("Tensor vide");
-    int nbr_val_tensor = shape_a[0];
+    int nbr_val_tensor = shape[0];
     if(debut < 0 || fin < 0 || debut > fin || fin > nbr_val_tensor)
         Throw_Error("Indices invalides dans extraction_section_axe_0");
 
     xt::xstrided_slice_vector slices;
     slices.push_back(xt::range(debut, fin));
-    for(int d = 1; d < shape_a.len(); d++)
+    for(int d = 1; d < shape.len(); d++)
         slices.push_back(xt::all());
 
-    Tensor res(DeviceType::CPU);
-    res.set_data(new TensorDataCPU(xt::eval(xt::strided_view(data_cpu, slices))));
+    Tensor res(DeviceType::CPU,xt::eval(xt::strided_view(data_cpu, slices)));
     res.recalul_shape();
     return res;
 }
@@ -202,12 +227,12 @@ bool TensorDataCPU::equal(const Tensor& b) const {
     return xt::all(xt::equal(data_cpu, db->data_cpu));
 }
 
-std::vector<size_t> TensorDataCPU::recalul_shape() const {
-    std::vector<size_t> shape;
+void TensorDataCPU::recalul_shape() {
+    std::vector<size_t> shape_tmp;
     for(auto s : data_cpu.shape()){
-        shape.push_back(s);
+        shape_tmp.push_back(s);
     }
-    return shape;
+    shape.dims = shape_tmp;
 }
 
 float TensorDataCPU::moyenne() const{

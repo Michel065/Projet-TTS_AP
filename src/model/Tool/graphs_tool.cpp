@@ -82,3 +82,12 @@ void create_graphs_loss(std::vector<float>& histo_loss,int height, int width){
     Print("Loss max : ", max);
     Print("Delta (max - min) : ", max - min);
 }
+
+void create_graphs_loss_screen(std::vector<float>& histo_loss,bool full){
+    if(full){
+        create_graphs_loss(histo_loss);
+    }
+    else{
+        create_graphs_loss(histo_loss,28,119);
+    }
+}

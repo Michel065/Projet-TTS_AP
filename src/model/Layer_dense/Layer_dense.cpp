@@ -44,7 +44,7 @@ Tensor LayerDense::backward(const Tensor& grad){
     Tensor grad_W;
     Tensor grad_b;
     Tensor grad_prec;
-    int batch_size = _last_input.shape[0];
+    int batch_size = _last_input.get_shape()[0];
     grad_W = _last_input.transpose().prod_mat(grad)/batch_size;
     grad_b = grad.sum_axis(0, true)/batch_size;
     grad_prec = grad.prod_mat(tmp_W.transpose());
