@@ -63,8 +63,10 @@ float Model::update_time_estimation(float temps_it, int total_it, int actuel_it)
     return avg_time * (total_it - actuel_it);
 }
 
-void Model::fit(Tensor input,Tensor y,int epochs,int batch_size){
-	std::vector<Tensor> input_split = input.separation_batch(batch_size);
+void Model::fit(Tensor input,Tensor y,int epochs,int batch_size){	
+    Print("salut");
+	std::vector<Tensor> input_split = input.separation_batch(batch_size);	
+    Print("salut");
 	std::vector<Tensor> y_split = y.separation_batch(batch_size);
 	int nbr_split = input_split.size();
 	Tensor Y_pred;
@@ -81,6 +83,7 @@ void Model::fit(Tensor input,Tensor y,int epochs,int batch_size){
 	count = 0;
 	
 	for(int i=0;i<epochs;i++){		
+    	Print("salut");
 		loss_moy=0;
 		for(int id_it=0; id_it<nbr_split; id_it++){
 			auto debut_it = std::chrono::high_resolution_clock::now();

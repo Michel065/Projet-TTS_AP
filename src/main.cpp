@@ -20,11 +20,8 @@
 void test_non_lineaire(){
     Tensor X, y, x_test;
     get_data_non_lineaire(X, y, x_test,1000);
-    Print("salut");
     size_t nbr_neur_in = (X.get_shape()[1]);
-    Print("salut");
     int nbr_neur_out = y.get_shape()[1];
-    Print("salut");
 
     Print("construction model.");
     Model model({.input_shape = Shape({nbr_neur_in}), .eta = 0.5});
