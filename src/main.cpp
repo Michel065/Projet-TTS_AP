@@ -62,6 +62,7 @@ void test_load(){
 
     Print("Test:");
     Tensor y_test = model.predict(x_test).round(2)*100;
+    
     Print("Prediction :",y_test);
 }
 
@@ -121,6 +122,7 @@ void test_CNN(){
 }
 
 int main() {
+
     test_non_lineaire();
     
     return 0;
