@@ -117,7 +117,9 @@ void TensorDataCPU::calcul_sup(float scalar) {
 }
 
 void TensorDataCPU::transpose() {
-    data_cpu = xt::eval(xt::transpose(data_cpu));
+    xt::xarray<float> tmp = xt::transpose(data_cpu);
+    data_cpu = tmp;
+    recalul_shape();
 }
 
 void TensorDataCPU::reshape(Shape format) {
@@ -211,7 +213,9 @@ Tensor TensorDataCPU::extraction_section_axe_0(int debut, int fin) const{
     for(int d = 1; d < shape.len(); d++)
         slices.push_back(xt::all());
 
-    Tensor res(DeviceType::CPU,xt::eval(xt::strided_view(data_cpu, slices)));
+    auto vue = xt::strided_view(data_cpu, slices);
+    xt::xarray<float> tmp = vue;
+    Tensor res(DeviceType::CPU, tmp);
     res.recalul_shape();
     return res;
 }
