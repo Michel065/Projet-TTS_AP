@@ -213,7 +213,7 @@ void Tensor::init_data_struct(){
         return;
     }
     if(is_gpu()){
-        //_data = new TensorDataGPU();
+        _data = new TensorDataGPU();
         return;
     }
     Throw_Error("Initialisation Impossible Tensor");
@@ -272,12 +272,6 @@ void Tensor::set(const std::vector<size_t>& indices, float val){
 TensorDataBase* Tensor::get_data()const {
     return _data;
 }
-
-const xt::xarray<float>& Tensor::get_data_format_xr()const{
-    check_data();
-    return _data->get_format_xr();
-}
-
 
 void Tensor::set_data(TensorDataBase* data){
     _data = data;

@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "model/Tool/Shape.h"
 #include "outil/Print.h"
 
 class CudaData {
@@ -27,7 +28,7 @@ public:
     void free();
 
     void copy_from_cpu(const xt::xarray<float>& arr);
-    xt::xarray<float> copy_to_cpu(const std::vector<size_t>& shape) const;
+    xt::xarray<float> copy_to_cpu(const Shape& shape) const;
 
     void copy_from_gpu(const CudaData& other);
 

@@ -56,6 +56,33 @@ __global__ void div_kernel(float* a, const float* b, size_t n){
     }
 }
 
+__global__ void add_kernel(float* a, const float scalar, size_t n){
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if(i < n){
+        a[i] += scalar;
+    }
+}
+
+__global__ void sub_kernel(float* a, const float scalar, size_t n){
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if(i < n){
+        a[i] -= scalar;
+    }
+}
+
+__global__ void mul_kernel(float* a, const float scalar, size_t n){
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if(i < n){
+        a[i] *= scalar;
+    }
+}
+
+__global__ void div_kernel(float* a, const float scalar, size_t n){
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    if(i < n){
+        a[i] /= scalar;
+    }
+}
 
 
 
@@ -90,4 +117,35 @@ void gpu_div(float* a, const float* b, size_t n){
     int blocks = calculs_blocks(n);
     div_kernel<<<blocks, THREADS_PAR_BLOCK>>>(a, b, n);
     cuda_check_all("div_kernel");
+}
+
+void gpu_add(float* a, const float scalar, size_t n){
+    int blocks = calculs_blocks(n);
+
+    add_kernel<<<blocks, THREADS_PAR_BLOCK>>>(a, scalar, n);
+    cuda_check_all("add_kernel_scalar");
+}
+
+void gpu_sub(float* a, const float scalar, size_t n){
+    int blocks = calculs_blocks(n);
+
+    sub_kernel<<<blocks, THREADS_PAR_BLOCK>>>(a, scalar, n);
+    cuda_check_all("sub_kernel_scalar");
+}
+
+void gpu_mul(float* a, const float scalar, size_t n){
+    int blocks = calculs_blocks(n);
+
+    mul_kernel<<<blocks, THREADS_PAR_BLOCK>>>(a, scalar, n);
+    cuda_check_all("mub_kernel_scalar");
+}
+
+void gpu_div(float* a, const float scalar, size_t n){
+    if(scalar == 0){
+        Throw_Error("Division TensorDataGPU impossible scalar == 0.");
+    }
+    
+    int blocks = calculs_blocks(n);
+    div_kernel<<<blocks, THREADS_PAR_BLOCK>>>(a, scalar, n);
+    cuda_check_all("div_kernel_scalar");
 }

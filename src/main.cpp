@@ -121,9 +121,20 @@ void test_CNN(){
     
 }
 
+void test_gpu(){
+    Tensor a(DeviceType::GPU, Shape({2, 3}), false,1);
+    Tensor b(DeviceType::GPU, Shape({2, 3}), false,2);
+
+    Print("a = ", a);
+    Print("b = ", b);
+
+    a += b;
+    Print("a+b = ", a);
+}
+
 int main() {
 
-    test_non_lineaire();
+    test_gpu();
     
     return 0;
 }

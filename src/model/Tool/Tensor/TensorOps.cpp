@@ -184,6 +184,6 @@ std::string get_device_str(const DeviceType& d){
 
 std::ostream& operator<<(std::ostream& os, const Tensor& t) {
     os << "Tensor type:" << get_device_str(t.get_device()) << " shape=" << t.get_shape().print() << "\n";
-    os << t.get_data_format_xr();
+    os << t.get_data()->to_json();
     return os;
 }

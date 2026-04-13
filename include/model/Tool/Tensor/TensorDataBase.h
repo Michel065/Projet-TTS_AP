@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include "model/Tool/Shape.h"
+#include "model/Json/Json_gestion.h"
 
 class Tensor;
 
@@ -50,7 +51,7 @@ public:
     virtual void recalul_shape() = 0;
     virtual float moyenne() const = 0;
     virtual bool scan_for_Nan(bool throww) const = 0;
-    virtual const xt::xarray<float>& get_format_xr() const = 0;
+    virtual const xt::xarray<float> to_json() const = 0;
 
     //methode pour modifier un element par element ( au cas ou, pas utile en theorie)
     virtual float get(const std::vector<size_t>& indices) const = 0;

@@ -124,7 +124,6 @@ private:
     //info lie a TensorDataBase
     TensorDataBase* _data=nullptr;
     TensorDataBase* get_data()const;
-    const xt::xarray<float>& get_data_format_xr()const;
     
     void set_data(TensorDataBase* data);
     void check_data() const;
@@ -144,6 +143,6 @@ inline void from_json(const json& j, Tensor& tensor){
 inline void to_json(json& j, const Tensor& tensor){
     j = json{
         {"device_type", tensor.get_device()},
-        {"data", tensor.get_data_format_xr()}
+        {"data", tensor.get_data()->to_json()}
     };
 }

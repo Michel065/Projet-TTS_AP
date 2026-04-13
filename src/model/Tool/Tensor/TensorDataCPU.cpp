@@ -255,13 +255,8 @@ bool TensorDataCPU::scan_for_Nan(bool throww) const {
     return false;
 }
 
-const xt::xarray<float>& TensorDataCPU::get_format_xr() const {
+const xt::xarray<float> TensorDataCPU::to_json() const{
     return data_cpu;
-}
-
-std::ostream& operator<<(std::ostream& os, const TensorDataCPU* t) {
-    os << t->data_cpu;
-    return os;
 }
 
 

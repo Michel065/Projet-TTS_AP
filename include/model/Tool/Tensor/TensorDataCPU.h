@@ -65,8 +65,7 @@ public:
     void recalul_shape() override;
     float moyenne() const override;
     bool scan_for_Nan(bool throww) const override;
-    const xt::xarray<float>& get_format_xr() const override;
-    friend std::ostream& operator<<(std::ostream& os, const TensorDataCPU* t);
+    const xt::xarray<float> to_json() const override;
 
     //methode pour modifier un element par element
     float get(const std::vector<size_t>& indices) const override;

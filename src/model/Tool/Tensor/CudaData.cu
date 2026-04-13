@@ -31,7 +31,6 @@ CudaData& CudaData::operator=(CudaData&& other) noexcept{
 
     other._data = nullptr;
     other._size = 0;
-
     return *this;
 }
 
@@ -64,25 +63,18 @@ void CudaData::copy_from_cpu(const xt::xarray<float>& arr){
 
     if(n == 0) return;
 
-    cuda_check(
-        cudaMemcpy(_data, arr.data(), n * sizeof(float), cudaMemcpyHostToDevice),
-        "cudaMemcpy HostToDevice failed"
-    );
+    cuda_check(cudaMemcpy(_data, arr.data(), n * sizeof(float), cudaMemcpyHostToDevice),"cudaMemcpy HostToDevice failed");
 }
 
-xt::xarray<float> CudaData::copy_to_cpu(const std::vector<size_t>& shape) const{
-    xt::xarray<float> arr = xt::xarray<float>::from_shape(shape);
+xt::xarray<float> CudaData::copy_to_cpu(const Shape& shape) const{
+    xt::xarray<float> arr = xt::xarray<float>::from_shape(shape.dims);
 
     if(_size == 0) return arr;
     if(arr.size() != _size){
         throw std::runtime_error("copy_to_cpu : taille shape incoherente avec _size");
     }
 
-    cuda_check(
-        cudaMemcpy(arr.data(), _data, _size * sizeof(float), cudaMemcpyDeviceToHost),
-        "cudaMemcpy DeviceToHost failed"
-    );
-
+    cuda_check(cudaMemcpy(arr.data(), _data, _size * sizeof(float), cudaMemcpyDeviceToHost),"cudaMemcpy DeviceToHost failed");
     return arr;
 }
 
@@ -91,10 +83,7 @@ void CudaData::copy_from_gpu(const CudaData& other){
 
     if(_size == 0) return;
 
-    cuda_check(
-        cudaMemcpy(_data, other._data, _size * sizeof(float), cudaMemcpyDeviceToDevice),
-        "cudaMemcpy DeviceToDevice failed"
-    );
+    cuda_check(cudaMemcpy(_data, other._data, _size * sizeof(float), cudaMemcpyDeviceToDevice),"cudaMemcpy DeviceToDevice failed");
 }
 
 float* CudaData::data(){

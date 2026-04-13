@@ -34,11 +34,13 @@ $(TARGET): $(OBJS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	@echo "Compiltion $(CXX) $<" #changement pour faire en sorte de limite l'affichage sinon pas pratique dans la console
+	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 $(BUILD_DIR)/%.cu.o: $(SRC_DIR)/%.cu
 	@mkdir -p $(dir $@)
-	$(NVCC) $(NVCCFLAGS) -MMD -MP -c $< -o $@
+	@echo "Compiltion $(NVCC) $<"
+	@$(NVCC) $(NVCCFLAGS) -MMD -MP -c $< -o $@
 
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)

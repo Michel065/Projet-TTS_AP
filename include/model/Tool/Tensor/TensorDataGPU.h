@@ -14,6 +14,10 @@
 class TensorDataGPU : public TensorDataBase {
 private:
     CudaData data_gpu;
+    size_t get_total_size() const;
+    const CudaData& get_data_gpu() const;
+    xt::xarray<float> copy_to_cpu() const;
+    void copy_from_cpu(const xt::xarray<float>& arr);  
 
 public:
     TensorDataGPU() = default;
@@ -38,7 +42,7 @@ public:
     void apply_div(float scalar) override;
 
     // methode qui modifie nos data Tensor
-    void init(Shape _shape, bool alea, int val_init) override;
+    void init(Shape _shape, bool alea, int val_init = 0) override;
     void init_with_data(const xt::xarray<float>& arr) override;
     void fill_alea() override;
     void apply_exp() override;
@@ -63,8 +67,7 @@ public:
     void recalul_shape() override;
     float moyenne() const override;
     bool scan_for_Nan(bool throww) const override;
-    const xt::xarray<float>& get_format_xr() const override;
-    friend std::ostream& operator<<(std::ostream& os, const TensorDataGPU* t);
+    const xt::xarray<float> to_json() const override;
 
     // methode pour modifier un element par element
     float get(const std::vector<size_t>& indices) const override;
@@ -72,10 +75,4 @@ public:
 
     friend class Tensor;
 
-private:
-    size_t get_total_size() const;
-    void alloc_gpu(size_t n);
-    void free_gpu();
-    xt::xarray<float> copy_to_cpu() const;
-    void copy_from_cpu(const xt::xarray<float>& arr);
 };
