@@ -37,7 +37,7 @@ void test_non_lineaire(){
     model.add(new LayerRelu());
     model.add(new LayerDense(nbr_neur_out));
     model.add(new LayerSigmoid());
-    //model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
+    model.add_callback(new CallbackEarlyStopLoss({.patience = 7}));
     model.set_loss_function(new LossBinaryCrossEntropy());
 
     //model.set_affichge_level(1);
@@ -124,7 +124,7 @@ void test_CNN(){
 }
 
 int main() {
-    test_CNN();
+    test_non_lineaire();
     
     return 0;
 }

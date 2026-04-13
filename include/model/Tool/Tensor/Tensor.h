@@ -1,20 +1,21 @@
 #pragma once
 
-#include <xtensor/containers/xarray.hpp>
-#include <xtensor/io/xio.hpp>
+#include <xtensor/xarray.hpp>
+#include <xtensor/xio.hpp>
+#include <xtensor/xbuilder.hpp>
+#include <xtensor/xmath.hpp>
+#include <xtensor/xjson.hpp>
+
 #include <random>
 #include <vector>
 #include <stdexcept>
-#include <xtensor/generators/xbuilder.hpp>
-#include <xtensor/core/xmath.hpp>
-#include <xtensor/io/xjson.hpp>
 
 #include "model/Tool/Shape.h"
 #include "outil/Print.h"
 #include "model/Json/Json_gestion.h"
 
 //modifcation pour integration de CPU GPUs
-//#include "model/Tool/TensorData/TensorDataGPU.h"
+#include "model/Tool/Tensor/TensorDataGPU.h"
 
 class TensorDataBase;
 class TensorDataCPU;
@@ -131,7 +132,7 @@ private:
     // ajout des class en friend
     friend class TensorDataBase;
     friend class TensorDataCPU;
-    //friend class TensorDataGPU;
+    friend class TensorDataGPU;
 };
 
 

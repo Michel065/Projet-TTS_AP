@@ -3,15 +3,17 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
-#include <xtensor/containers/xarray.hpp>
+#include <xtensor/xarray.hpp>
 
-#include "model/Tool/Tensor/TensorDataBase.h"
+#include "model/Tool/Tensor/TensorDataBase.h"   
 #include "model/Tool/Tensor/CudaData.h"
+
+//ajout des methodes liée au kernel
+#include "model/Tool/Tensor/TensorKernels.cuh"
 
 class TensorDataGPU : public TensorDataBase {
 private:
     CudaData data_gpu;
-    std::vector<size_t> shape_gpu;
 
 public:
     TensorDataGPU() = default;

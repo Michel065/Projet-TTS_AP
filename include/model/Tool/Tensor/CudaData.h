@@ -1,7 +1,12 @@
 #pragma once
+#include <xtensor/xarray.hpp>
 
 #include <cstddef>
-#include <xtensor/containers/xarray.hpp>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+#include "outil/Print.h"
 
 class CudaData {
 private:
@@ -32,3 +37,7 @@ public:
     size_t size() const;
     bool empty() const;
 };
+
+/*
+Source : https://docs.nvidia.com/cuda/cuda-c-programming-guide/#
+*/

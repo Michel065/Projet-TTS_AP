@@ -1,4 +1,4 @@
-#include <xtensor/containers/xarray.hpp>
+#include <xtensor/xarray.hpp>
 #include "test.h"
 
 void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test){

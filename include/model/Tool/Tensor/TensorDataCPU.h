@@ -1,13 +1,19 @@
 #pragma once
 
-#include <xtensor/containers/xarray.hpp>
-#include <xtensor/io/xio.hpp>
+#include <xtensor/xarray.hpp>
+#include <xtensor/xio.hpp>
+#include <xtensor/xbuilder.hpp>
+#include <xtensor/xmath.hpp>
+#include <xtensor/xjson.hpp>
+#include <xtensor/xtensor.hpp>
+#include <xtensor/xview.hpp>
+#include <xtensor/xstrided_view.hpp>
+#include <xtensor/xmanipulation.hpp>
+#include <xtensor/xeval.hpp>
+
 #include <random>
 #include <vector>
 #include <stdexcept>
-#include <xtensor/generators/xbuilder.hpp>
-#include <xtensor/core/xmath.hpp>
-#include <xtensor/io/xjson.hpp>
 
 #include "model/Tool/Tensor/TensorDataBase.h"
 

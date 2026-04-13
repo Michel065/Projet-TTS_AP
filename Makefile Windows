@@ -1,0 +1,58 @@
+# modif du makefile pour compile les cu.
+
+
+CXX = g++
+NVCC = nvcc
+
+CUDA_INC = C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/include
+CUDA_LIB = C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/lib/x64
+
+CXXFLAGS = -Wall -std=c++20 -Iinclude -Isrc -MMD -MP -Iext_inc -I"$(CUDA_INC)"
+NVCCFLAGS = -std=c++17 -Iinclude -Isrc -Iext_inc -I"$(CUDA_INC)" # 17 et pas 20 car mon cuda est pas compatible avec 20
+
+LDFLAGS = -L"$(CUDA_LIB)" -lcudart
+
+SRC_DIR := src
+BUILD_DIR := build
+TARGET := main.exe
+
+rwildcard = $(foreach d,$(wildcard $1/*),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+
+SRCS_CPP := $(call rwildcard,$(SRC_DIR),*.cpp)
+SRCS_CU := $(call rwildcard,$(SRC_DIR),*.cu)
+
+OBJS_CPP := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS_CPP))
+OBJS_CU := $(patsubst $(SRC_DIR)/%.cu,$(BUILD_DIR)/%.cu.o,$(SRCS_CU))
+
+OBJS := $(OBJS_CPP) $(OBJS_CU)
+DEPS := $(OBJS_CPP:.o=.d)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@if not exist "$(subst /,\,$(dir $@))" mkdir "$(subst /,\,$(dir $@))"
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.cu.o: $(SRC_DIR)/%.cu
+	@if not exist "$(subst /,\,$(dir $@))" mkdir "$(subst /,\,$(dir $@))"
+	$(NVCC) $(NVCCFLAGS) -c $< -o $@
+
+clean:
+	if exist "$(BUILD_DIR)" rmdir /s /q "$(BUILD_DIR)"
+	if exist "$(TARGET)" del /q "$(TARGET)"
+
+run: $(TARGET)
+	@echo.
+	@echo Execution $(TARGET) ... 
+	@echo.
+	@.\$(TARGET)
+	@echo.
+	@echo Execution $(TARGET) Termine.
+
+r: run
+c: clean
+
+-include $(DEPS)
