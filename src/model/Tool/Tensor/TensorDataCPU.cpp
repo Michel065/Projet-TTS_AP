@@ -66,7 +66,7 @@ void TensorDataCPU::apply_div(float scalar) {
 
 // methode qui modifie datacpu
 void TensorDataCPU::init(Shape _shape, bool alea, int val_init){
-    if(!alea && val_init>0){
+    if(!alea && val_init != 0){
         data_cpu = xt::ones<float>(_shape.dims)*val_init;
     }else{
         data_cpu = xt::zeros<float>(_shape.dims);
@@ -77,6 +77,7 @@ void TensorDataCPU::init(Shape _shape, bool alea, int val_init){
 
 void TensorDataCPU::init_with_data(const xt::xarray<float>& arr) {
     data_cpu=arr;
+    recalul_shape();
 }
 
 void TensorDataCPU::fill_alea(){
@@ -140,6 +141,13 @@ void TensorDataCPU::reshape(Shape format) {
     shape=format;
 }
 
+void TensorDataCPU::shuffle(const std::vector<int>& indices){
+    xt::xarray<float> tmp = data_cpu;
+    for(int i = 0; i < (int)indices.size(); i++){
+        xt::view(data_cpu, i) = xt::view(tmp, indices[i]);
+    }
+}
+
 
 
 
@@ -171,7 +179,8 @@ Tensor TensorDataCPU::matmul(const Tensor& b) const {// toujours facon naive sur
             res.set({i,j},sum);
         }
     }
-    res.recalul_shape();
+    auto dres = dynamic_cast<TensorDataCPU*>(res.get_data());
+    dres->recalul_shape();
     return res;
 }
 
@@ -183,21 +192,24 @@ Tensor TensorDataCPU::sum_axis(std::size_t axis, bool keep_dims) const {
     }else{
         res.set_data(new TensorDataCPU(tmp));
     }
-    res.recalul_shape();
+    auto dres = dynamic_cast<TensorDataCPU*>(res.get_data());
+    dres->recalul_shape();
     return res;
 }
 
 Tensor TensorDataCPU::sum_per_row() const {
     Tensor res(DeviceType::CPU);
     res.set_data(new TensorDataCPU(xt::sum(data_cpu, {1}, xt::keep_dims)));
-    res.recalul_shape();
+    auto dres = dynamic_cast<TensorDataCPU*>(res.get_data());
+    dres->recalul_shape();
     return res;
 }
 
 Tensor TensorDataCPU::max_per_row() const {
     Tensor res(DeviceType::CPU);
     res.set_data(new TensorDataCPU(xt::amax(data_cpu, {1}, xt::keep_dims)));
-    res.recalul_shape();
+    auto dres = dynamic_cast<TensorDataCPU*>(res.get_data());
+    dres->recalul_shape();
     return res;
 }
 
@@ -216,7 +228,8 @@ Tensor TensorDataCPU::extraction_section_axe_0(int debut, int fin) const{
     auto vue = xt::strided_view(data_cpu, slices);
     xt::xarray<float> tmp = vue;
     Tensor res(DeviceType::CPU, tmp);
-    res.recalul_shape();
+    auto dres = dynamic_cast<TensorDataCPU*>(res.get_data());
+    dres->recalul_shape();
     return res;
 }
 
@@ -227,11 +240,6 @@ Tensor TensorDataCPU::extraction_section_axe_0(int debut, int fin) const{
 
 
 //methode autre
-bool TensorDataCPU::equal(const Tensor& b) const {
-    auto db = check_cpu(b);
-    return xt::all(xt::equal(data_cpu, db->data_cpu));
-}
-
 void TensorDataCPU::recalul_shape() {
     std::vector<size_t> shape_tmp;
     for(auto s : data_cpu.shape()){
@@ -242,17 +250,6 @@ void TensorDataCPU::recalul_shape() {
 
 float TensorDataCPU::moyenne() const{
     return xt::mean(data_cpu)();
-}
-
-bool TensorDataCPU::scan_for_Nan(bool throww) const {
-    if (xt::any(xt::isnan(data_cpu))) {
-        if(throww){
-            Print("");
-            Throw_Error("TensorDataCPU a un Nan dans ca valeur");
-        }
-        return true;
-    }
-    return false;
 }
 
 const xt::xarray<float> TensorDataCPU::to_json() const{

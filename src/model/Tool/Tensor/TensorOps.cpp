@@ -165,15 +165,6 @@ Tensor Tensor::operator>(float scalar) const {
     return res;
 }
 
-bool Tensor::operator==(const Tensor& other) const{
-    check_data();
-    return _data->get_shape().dims == other.get_shape().dims && _data->equal(other);
-}
-
-bool Tensor::operator!=(const Tensor& other) const{
-    return !(*this == other);
-}
-
 std::string get_device_str(const DeviceType& d){
     switch(d){
         case DeviceType::CPU: return std::string("CPU");

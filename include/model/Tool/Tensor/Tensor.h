@@ -65,8 +65,6 @@ public:
     Tensor& operator*=(const Tensor& other);
     Tensor& operator/=(const Tensor& other);
     //comparatif operator
-    bool operator==(const Tensor& other) const;
-    bool operator!=(const Tensor& other) const;
     Tensor operator>(float scalar) const;
     void operator>=(float scalar);
 
@@ -93,16 +91,15 @@ public:
     Tensor sum_axis(std::size_t axis, bool keep_dims) const;
     Tensor sum_per_row() const;
     Tensor max_per_row() const;
+    void shuffle(const std::vector<int> &indices);
     std::vector<Tensor> separation_batch(int batch_size)const;
     Tensor extraction_section_axe_0(int debut, int fin) const;
 
     //methode evaluation
-    bool scan_for_Nan(bool throww=true) const;
     bool is_cpu() const;
     bool is_gpu() const;
 
     //methode void
-    void recalul_shape();
     void to_cpu();//methode pour faire la distinction
     void to_gpu();
     void init_data_struct();
@@ -120,7 +117,7 @@ public:
 
 private:
     DeviceType device = DeviceType::CPU;
-
+    
     //info lie a TensorDataBase
     TensorDataBase* _data=nullptr;
     TensorDataBase* get_data()const;

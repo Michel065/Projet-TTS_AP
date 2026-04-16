@@ -16,6 +16,8 @@ struct Shape {
     size_t& operator[](size_t i);
     const size_t& operator[](size_t i) const;
     std::string print() const;
+    bool operator==(const Shape& other) const;
+    bool operator!=(const Shape& other) const;
 };
 
 inline void from_json(const json& j, Shape& shape) {

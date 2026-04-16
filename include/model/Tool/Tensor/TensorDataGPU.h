@@ -9,26 +9,30 @@
 #include "model/Tool/Tensor/CudaData.h"
 
 //ajout des methodes liée au kernel
-#include "model/Tool/Tensor/TensorKernels.cuh"
+#include "model/Tool/Tensor/TensorFuncKernels.cuh"
 
 class TensorDataGPU : public TensorDataBase {
 private:
-    CudaData data_gpu;
+    CudaData<float> data_gpu;
     size_t get_total_size() const;
-    const CudaData& get_data_gpu() const;
+    const CudaData<float>& get_data_gpu() const;
+    CudaData<float>& get_data_gpu();
     xt::xarray<float> copy_to_cpu() const;
     void copy_from_cpu(const xt::xarray<float>& arr);  
+    int calcul_stride(int dim_dep) const;
+    bool shape_broadcastable(const Shape& b,int dim_dep=1);
 
 public:
     TensorDataGPU() = default;
     ~TensorDataGPU() override;
+    TensorDataBase* clone() const override;
+    const TensorDataGPU* check_gpu(const Tensor& a) const;
+    TensorDataGPU* check_gpu_nc(Tensor& a) const;
 
+    
+    // on bloque la copy direct pour eviter de faire des bétises du coup si je evxu une copy je suis forcé d'utilsier le clone qui est sure 
     TensorDataGPU(const TensorDataGPU&) = delete;
     TensorDataGPU& operator=(const TensorDataGPU&) = delete;
-
-    const TensorDataGPU* check_gpu(const Tensor& a) const;
-
-    TensorDataBase* clone() const override;
 
     // les ops
     void apply_add(const Tensor& b) override;
@@ -44,7 +48,7 @@ public:
     // methode qui modifie nos data Tensor
     void init(Shape _shape, bool alea, int val_init = 0) override;
     void init_with_data(const xt::xarray<float>& arr) override;
-    void fill_alea() override;
+    void fill_alea(xt::xarray<float>& arr);
     void apply_exp() override;
     void apply_pow(float val) override;
     void apply_max(float val) override;
@@ -54,6 +58,7 @@ public:
     void calcul_sup(float scalar) override;
     void transpose() override;
     void reshape(Shape format) override;
+    void shuffle(const std::vector<int>& indices) override;
 
     // methode qui crée un nouveau Tensor
     Tensor matmul(const Tensor& b) const override;
@@ -63,10 +68,7 @@ public:
     Tensor extraction_section_axe_0(int debut, int fin) const override;
 
     // methode autre
-    bool equal(const Tensor& b) const override;
-    void recalul_shape() override;
     float moyenne() const override;
-    bool scan_for_Nan(bool throww) const override;
     const xt::xarray<float> to_json() const override;
 
     // methode pour modifier un element par element

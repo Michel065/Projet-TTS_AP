@@ -30,7 +30,6 @@ Tensor::~Tensor(){
 Tensor::Tensor(DeviceType _device,const xt::xarray<float>& arr) : device(_device), _data(nullptr){
     init_data_struct();
     _data->init_with_data(arr);
-    recalul_shape();
 }
 
 
@@ -85,7 +84,6 @@ Tensor& Tensor::reshape(Shape format){
 Tensor& Tensor::transpose(){
     check_data();
     _data->transpose();
-    recalul_shape();
     return *this;
 }
 
@@ -125,8 +123,27 @@ Tensor Tensor::max_per_row() const {
     return res;
 }
 
+void Tensor::shuffle(const std::vector<int> &indices){
+    check_data();
+	if(_data->shape.len() == 0)
+        Throw_Error("shuffle impossible : tensor vide");
+    _data->shuffle(indices);
+}
+
+
 std::vector<Tensor> Tensor::separation_batch(int batch_size) const{
     check_data();
+    if(_data->shape.len() == 0)
+        Throw_Error("shuffle impossible : tensor vide");
+
+    int n = _data->shape[0];
+    std::vector<int> indices(n);
+    for(int i = 0; i < n; i++)
+        indices[i] = i;
+
+    std::shuffle(indices.begin(), indices.end(), std::mt19937(std::random_device{}()));
+    _data->shuffle(indices);
+
     std::vector<Tensor> liste;
     if(batch_size <= -1)
         Throw_Error("batch_size invalide >= 0");
@@ -166,11 +183,6 @@ Tensor Tensor::extraction_section_axe_0(int debut, int fin) const{
 
 
 //methode evaluation
-bool Tensor::scan_for_Nan(bool throww) const {
-    check_data();
-    return _data->scan_for_Nan(throww);
-}
-
 bool Tensor::is_cpu() const{
     return device == DeviceType::CPU;
 }
@@ -186,10 +198,6 @@ bool Tensor::is_gpu() const{
 
 
 //methode void
-void Tensor::recalul_shape(){
-    check_data();
-    _data->recalul_shape();
-}
 
 void Tensor::to_cpu(){
     if(device == DeviceType::CPU)

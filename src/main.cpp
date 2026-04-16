@@ -17,14 +17,14 @@
 #include "model/Layer_conv/LayerFlatten.h"
 #include "model/Layer_conv/LayerMaxPool2D.h"
 
-void test_non_lineaire(){
+void test_non_lineaire(DeviceType device = DeviceType::GPU){
     Tensor X, y, x_test;
-    get_data_non_lineaire(X, y, x_test,1000);
+    get_data_non_lineaire(X, y, x_test,1000,device);
     size_t nbr_neur_in = (X.get_shape()[1]);
     int nbr_neur_out = y.get_shape()[1];
 
     Print("construction model.");
-    Model model({.input_shape = Shape({nbr_neur_in}), .eta = 0.5});
+    Model model({.input_shape = Shape({nbr_neur_in}), .eta = 0.1 ,.device=device});
     model.add(new LayerNormalisation({-3,-3},{3,3}));// c le min et le max a la main
     model.add(new LayerDense(20));
     model.add(new LayerRelu());
@@ -40,7 +40,7 @@ void test_non_lineaire(){
     //model.set_affichge_level(1);
 
     Print("entrainement.");
-    model.fit(X,y,150,32);
+    model.fit(X,y,150,4,false);
     
     Print("Test:");
     Tensor y_test = model.predict(x_test).round(2)*100;
@@ -68,10 +68,10 @@ void test_load(){
 
 void test_CNN(){
     Tensor X, y, x_test, y_test;
-    get_data_CNN(X, y, x_test,y_test);
+    get_data_CNN(X, y, x_test,y_test,DeviceType::GPU);
 
     Print("construction model.");
-    Model model({.input_shape = Shape({1,28,28}), .eta = 0.11});
+    Model model({.input_shape = Shape({1,28,28}), .eta = 0.11, .device=DeviceType::GPU});
 
     model.add(new LayerConv2D(8,3));
     model.add(new LayerRelu());
@@ -121,20 +121,7 @@ void test_CNN(){
     
 }
 
-void test_gpu(){
-    Tensor a(DeviceType::GPU, Shape({2, 3}), false,1);
-    Tensor b(DeviceType::GPU, Shape({2, 3}), false,2);
-
-    Print("a = ", a);
-    Print("b = ", b);
-
-    a += b;
-    Print("a+b = ", a);
-}
-
 int main() {
-
-    test_gpu();
-    
+    test_non_lineaire(DeviceType::CPU);
     return 0;
 }

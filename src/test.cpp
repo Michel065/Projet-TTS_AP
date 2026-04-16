@@ -1,4 +1,6 @@
 #include <xtensor/xarray.hpp>
+#include <chrono>
+
 #include "test.h"
 
 void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test){
@@ -32,9 +34,9 @@ void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test){
     });
 }
 
-void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n){
-    X = Tensor(DeviceType::CPU,Shape({n, 2}));
-    y = Tensor(DeviceType::CPU,Shape({n, 1}));
+void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n,DeviceType device){
+    X = Tensor(device,Shape({n, 2}));
+    y = Tensor(device,Shape({n, 1}));
 
     float r1 = 1.0f;
     float r2 = 2.0f;
@@ -71,7 +73,7 @@ void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n){
         }
     }
 
-    x_test = Tensor(DeviceType::CPU,{
+    x_test = Tensor(device,{
         {1.5f, 0.0f},
         {1.2f, 0.8f},
         {0.3f, 0.3f},
@@ -146,4 +148,39 @@ void get_data_CNN(Tensor& X, Tensor& y, Tensor& x_test, Tensor& y_test,DeviceTyp
     x_test = Tensor(device, arr_x_test);
     y_test = Tensor(device, arr_y_test);
     Print("nb_images au total : ",nb_images);
+}
+
+
+
+void test_perf_cpu_gpu_simple(size_t N){
+    Shape shape({N, N});
+
+    // CPU
+    Tensor a_cpu(DeviceType::CPU, shape, true);
+    Tensor b_cpu(DeviceType::CPU, shape, true);
+
+    // GPU
+    Tensor a_gpu(DeviceType::GPU, shape, true);
+    Tensor b_gpu(DeviceType::GPU, shape, true);
+
+    //CPU 
+    auto start_cpu = std::chrono::high_resolution_clock::now();
+    a_cpu += b_cpu;
+    a_cpu *= b_cpu;
+    a_cpu -= b_cpu;
+
+    auto end_cpu = std::chrono::high_resolution_clock::now();
+    double time_cpu = std::chrono::duration<double>(end_cpu - start_cpu).count();
+
+    //GPU 
+    auto start_gpu = std::chrono::high_resolution_clock::now();
+    a_gpu += b_gpu;
+    a_gpu *= b_gpu;
+    a_gpu -= b_gpu;
+
+    auto end_gpu = std::chrono::high_resolution_clock::now();
+    double time_gpu = std::chrono::duration<double>(end_gpu - start_gpu).count();
+
+    Print("CPU time = ", time_cpu);
+    Print("GPU time = ", time_gpu);
 }

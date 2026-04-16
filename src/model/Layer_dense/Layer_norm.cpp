@@ -1,5 +1,5 @@
 #include "model/Layer_dense/Layer_norm.h"
-#include "model/model.h"
+#include "model/Model.h"
 
 LayerNormalisation::LayerNormalisation(): Layer("Normalisation"){}
 
@@ -31,13 +31,13 @@ Tensor LayerNormalisation::calc_alternative_grad(const Tensor& grad){
 
 void LayerNormalisation::build(){
     set_output_shape(_shape_input);
-    _min = Tensor(_device,_vmin).transpose();
-    _max = Tensor(_device,_vmax).transpose();
+    _min = Tensor(_device,_vmin).reshape(Shape({1,_vmin.size()}));
+    _max = Tensor(_device,_vmax).reshape(Shape({1,_vmin.size()}));
     print_couche_msg("Build termine.", Color::GREEN);
 }
 
 void LayerNormalisation::get_from_model(){
-    if(_model != nullptr)
+    if(_model == nullptr)
         return;
     _device = _model->get_device();
 }

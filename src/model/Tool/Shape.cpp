@@ -41,3 +41,11 @@ int Shape::size() const{
     }
     return taille;
 }
+
+bool Shape::operator==(const Shape& other) const {
+    return dims == other.dims;
+}
+
+bool Shape::operator!=(const Shape& other) const {
+    return !(*this == other);
+}

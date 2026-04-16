@@ -30,17 +30,18 @@ OBJS := $(OBJS_CPP) $(OBJS_CU)
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo "Generation de l'executable $(TARGET) Done."
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	@echo "Compiltion $(CXX) $<" #changement pour faire en sorte de limite l'affichage sinon pas pratique dans la console
 	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	@echo "Compiltion $(CXX) $< Done." #changement pour faire en sorte de limite l'affichage sinon pas pratique dans la console
 
 $(BUILD_DIR)/%.cu.o: $(SRC_DIR)/%.cu
 	@mkdir -p $(dir $@)
-	@echo "Compiltion $(NVCC) $<"
 	@$(NVCC) $(NVCCFLAGS) -MMD -MP -c $< -o $@
+	@echo "Compiltion $(NVCC) $< Done."
 
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)

@@ -1,6 +1,24 @@
 #include "model/Layer_conv/LayerConv2D.h"
 #include "model/Model.h"
 
+
+
+
+
+
+
+
+
+
+
+
+
+//https://eunomia.dev/others/cuda-tutorial/06-cnn-convolution/
+
+
+
+
+
 LayerConv2D::LayerConv2D(size_t nb_filters, size_t kernel) : Layer("Conv2D"){
     _nb_filters = nb_filters;
     _kernel = kernel;

@@ -28,7 +28,6 @@ public:
     //methode qui modifie nos data Tensor
     virtual void init(Shape _shape, bool alea, int val_init) = 0;
     virtual void init_with_data(const xt::xarray<float>& arr) = 0;
-    virtual void fill_alea() = 0;
     virtual void apply_exp() = 0;
     virtual void apply_pow(float val) = 0;
     virtual void apply_max(float val) = 0;
@@ -38,6 +37,7 @@ public:
     virtual void calcul_sup(float scalar) = 0;
     virtual void transpose() = 0;
     virtual void reshape(Shape format) = 0;
+    virtual void shuffle(const std::vector<int>& indices) = 0;
 
     //methode qui créer un nouveau Tensor
     virtual Tensor matmul(const Tensor& b) const = 0;
@@ -47,10 +47,7 @@ public:
     virtual Tensor extraction_section_axe_0(int debut, int fin) const = 0;
 
     //methode autre
-    virtual bool equal(const Tensor& b) const = 0;
-    virtual void recalul_shape() = 0;
     virtual float moyenne() const = 0;
-    virtual bool scan_for_Nan(bool throww) const = 0;
     virtual const xt::xarray<float> to_json() const = 0;
 
     //methode pour modifier un element par element ( au cas ou, pas utile en theorie)

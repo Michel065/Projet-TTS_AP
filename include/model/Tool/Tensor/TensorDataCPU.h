@@ -20,6 +20,7 @@
 class TensorDataCPU : public TensorDataBase {
 private:
     xt::xarray<float> data_cpu;
+    void recalul_shape();
 
 public:
     TensorDataCPU() = default;
@@ -42,7 +43,7 @@ public:
     //methode qui modifie nos data Tensor
     void init(Shape _shape, bool alea, int val_init) override;
     void init_with_data(const xt::xarray<float>& arr) override;
-    void fill_alea() override;
+    void fill_alea();
     void apply_exp() override;
     void apply_pow(float val) override;
     void apply_max(float val) override;
@@ -52,7 +53,8 @@ public:
     void calcul_sup(float scalar) override;
     void transpose() override;
     void reshape(Shape format) override;
-    
+    void shuffle(const std::vector<int>& indices) override;
+     
     //methode qui créer un nouveau Tensor
     Tensor matmul(const Tensor& b) const override;
     Tensor sum_axis(std::size_t axis, bool keep_dims) const override;
@@ -61,10 +63,7 @@ public:
     Tensor extraction_section_axe_0(int debut, int fin) const override;
 
     //methode autre
-    bool equal(const Tensor& b) const override;
-    void recalul_shape() override;
     float moyenne() const override;
-    bool scan_for_Nan(bool throww) const override;
     const xt::xarray<float> to_json() const override;
 
     //methode pour modifier un element par element

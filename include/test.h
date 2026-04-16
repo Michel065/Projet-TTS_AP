@@ -16,5 +16,7 @@
 #include "model/Tool/Shape.h"
 
 void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test);
-void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n=500);
+void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n=500,DeviceType device = DeviceType::CPU);
 void get_data_CNN(Tensor& X, Tensor& y, Tensor& x_test, Tensor& y_test,DeviceType device = DeviceType::CPU);
+
+void test_perf_cpu_gpu_simple(size_t N = 2000);

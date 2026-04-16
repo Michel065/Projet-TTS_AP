@@ -63,10 +63,16 @@ float Model::update_time_estimation(float temps_it, int total_it, int actuel_it)
     return avg_time * (total_it - actuel_it);
 }
 
-void Model::fit(Tensor input,Tensor y,int epochs,int batch_size){	
-	std::vector<Tensor> input_split = input.separation_batch(batch_size);
-	std::vector<Tensor> y_split = y.separation_batch(batch_size);
-	int nbr_split = input_split.size();
+const std::vector<int> genere_indices_shuffle(int n){
+    std::vector<int> indices(n);
+    for(int i = 0; i < n; i++)
+        indices[i] = i;
+
+    std::shuffle(indices.begin(), indices.end(), std::mt19937(std::random_device{}()));
+	return indices;
+}
+    
+void Model::fit(Tensor input,Tensor y,int epochs,int batch_size,bool shuffle){	
 	Tensor Y_pred;
 	float loss_moy=0,loss_tmp=0;
 	early_stop=false;
@@ -80,7 +86,19 @@ void Model::fit(Tensor input,Tensor y,int epochs,int batch_size){
 	avg_time = 0;
 	count = 0;
 	
-	for(int i=0;i<epochs;i++){		
+	for(int i=0;i<epochs;i++){
+		//melange des datas:
+		if(shuffle){
+			const std::vector<int> indices = genere_indices_shuffle(input.get_shape()[0]);
+			input.shuffle(indices);
+			y.shuffle(indices);
+		}
+		
+		std::vector<Tensor> input_split = input.separation_batch(batch_size);
+		std::vector<Tensor> y_split = y.separation_batch(batch_size);
+		int nbr_split = input_split.size();
+
+		// entrainement pricipale
 		loss_moy=0;
 		for(int id_it=0; id_it<nbr_split; id_it++){
 			auto debut_it = std::chrono::high_resolution_clock::now();
@@ -107,9 +125,9 @@ void Model::fit(Tensor input,Tensor y,int epochs,int batch_size){
 		}
 		_train_loss_history.push_back(loss_moy/nbr_split);
 		
-		if(_type_aff == 0)
+		if(_type_aff == 0){
 			Print_over("Epochs : ", i + 1, "/", epochs," loss train : ",std::round(_train_loss_history.back() * 10000.0f) / 10000.0f);
-
+		}
 		run_callback();
 		if(early_stop){
 			Print("\nArret anticipe du training.");

@@ -9,9 +9,10 @@
 #include "model/Tool/Shape.h"
 #include "outil/Print.h"
 
+template<typename T = float>
 class CudaData {
 private:
-    float* _data = nullptr;
+    T* _data = nullptr;
     size_t _size = 0;
 
 public:
@@ -27,17 +28,22 @@ public:
     void allocate(size_t size);
     void free();
 
-    void copy_from_cpu(const xt::xarray<float>& arr);
-    xt::xarray<float> copy_to_cpu(const Shape& shape) const;
+    void copy_from_cpu(const xt::xarray<T>& arr);
+    void copy_from_cpu(const std::vector<T>& vec);
+    xt::xarray<T> copy_to_cpu(const Shape& shape) const;
 
     void copy_from_gpu(const CudaData& other);
 
-    float* data();
-    const float* data() const;
+    T* data();
+    const T* data() const;
 
     size_t size() const;
     bool empty() const;
+
+    T get(size_t index) const;
+    void set(size_t index, T val);
 };
+
 
 /*
 Source : https://docs.nvidia.com/cuda/cuda-c-programming-guide/#
