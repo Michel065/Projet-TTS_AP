@@ -7,7 +7,7 @@ CUDA_LIB = /usr/local/cuda/lib64
 CXXFLAGS = -Wall -std=c++20 -Iinclude -Isrc -I$(CUDA_INC)
 NVCCFLAGS = -std=c++17 -Iinclude -Isrc -I$(CUDA_INC)
 
-LDFLAGS = -L$(CUDA_LIB) -lcudart
+LDFLAGS = -L$(CUDA_LIB) -lcudart -lcurand
 
 SRC_DIR := src
 BUILD_DIR := build
@@ -31,6 +31,7 @@ all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ""
 	@echo "Generation de l'executable $(TARGET) Done."
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp

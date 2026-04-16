@@ -19,12 +19,12 @@
 
 void test_non_lineaire(DeviceType device = DeviceType::GPU){
     Tensor X, y, x_test;
-    get_data_non_lineaire(X, y, x_test,1000,device);
+    get_data_non_lineaire(X, y, x_test,10000,device);
     size_t nbr_neur_in = (X.get_shape()[1]);
     int nbr_neur_out = y.get_shape()[1];
 
     Print("construction model.");
-    Model model({.input_shape = Shape({nbr_neur_in}), .eta = 0.1 ,.device=device});
+    Model model({.input_shape = Shape({nbr_neur_in}), .eta = 3 ,.device=device});
     model.add(new LayerNormalisation({-3,-3},{3,3}));// c le min et le max a la main
     model.add(new LayerDense(20));
     model.add(new LayerRelu());
@@ -37,10 +37,10 @@ void test_non_lineaire(DeviceType device = DeviceType::GPU){
     model.add_callback(new CallbackEarlyStopLoss({.patience = 7}));
     model.set_loss_function(new LossBinaryCrossEntropy());
 
-    //model.set_affichge_level(1);
+    //model.set_affichge_level(2);
 
     Print("entrainement.");
-    model.fit(X,y,150,4,false);
+    model.fit(X,y,1500,512);
     
     Print("Test:");
     Tensor y_test = model.predict(x_test).round(2)*100;
@@ -122,6 +122,7 @@ void test_CNN(){
 }
 
 int main() {
-    test_non_lineaire(DeviceType::CPU);
+    test_non_lineaire(DeviceType::GPU);
+    //test_perf_cpu_gpu_simple(32000);
     return 0;
 }

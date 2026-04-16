@@ -48,7 +48,6 @@ public:
     // methode qui modifie nos data Tensor
     void init(Shape _shape, bool alea, int val_init = 0) override;
     void init_with_data(const xt::xarray<float>& arr) override;
-    void fill_alea(xt::xarray<float>& arr);
     void apply_exp() override;
     void apply_pow(float val) override;
     void apply_max(float val) override;

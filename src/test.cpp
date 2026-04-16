@@ -153,17 +153,22 @@ void get_data_CNN(Tensor& X, Tensor& y, Tensor& x_test, Tensor& y_test,DeviceTyp
 
 
 void test_perf_cpu_gpu_simple(size_t N){
+    auto start_gpu_tot = std::chrono::high_resolution_clock::now();
     Shape shape({N, N});
 
     // CPU
-    Tensor a_cpu(DeviceType::CPU, shape, true);
-    Tensor b_cpu(DeviceType::CPU, shape, true);
+    //Tensor a_cpu(DeviceType::CPU, shape, true);
+    //Tensor b_cpu(DeviceType::CPU, shape, true);
 
     // GPU
+    Print("init a:");
     Tensor a_gpu(DeviceType::GPU, shape, true);
+    Print("init a fin init b:");
     Tensor b_gpu(DeviceType::GPU, shape, true);
+    Print("init b fin");
 
     //CPU 
+    /*
     auto start_cpu = std::chrono::high_resolution_clock::now();
     a_cpu += b_cpu;
     a_cpu *= b_cpu;
@@ -171,16 +176,19 @@ void test_perf_cpu_gpu_simple(size_t N){
 
     auto end_cpu = std::chrono::high_resolution_clock::now();
     double time_cpu = std::chrono::duration<double>(end_cpu - start_cpu).count();
-
+    */
     //GPU 
+    Print("lancement calcul:");
     auto start_gpu = std::chrono::high_resolution_clock::now();
     a_gpu += b_gpu;
     a_gpu *= b_gpu;
     a_gpu -= b_gpu;
 
     auto end_gpu = std::chrono::high_resolution_clock::now();
+    Print("fin calcul:");
     double time_gpu = std::chrono::duration<double>(end_gpu - start_gpu).count();
+    double time_gpu_tot = std::chrono::duration<double>(end_gpu - start_gpu_tot).count();
 
-    Print("CPU time = ", time_cpu);
-    Print("GPU time = ", time_gpu);
+    //Print("CPU time = ", time_cpu);
+    Print("GPU time = ", time_gpu , " tot=",time_gpu_tot);
 }

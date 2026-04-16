@@ -57,6 +57,7 @@ private:
 	void reformat(ModelConfig model_config);
 	
 	void add_from_save(Layer* layer);
+	const std::vector<int> genere_indices_shuffle(int n);
 
 	friend void to_json(json& j, const Model* model);
 	friend void from_json(const json& j, Model* model);

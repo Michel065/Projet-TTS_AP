@@ -5,8 +5,29 @@
 
 #include "outil/Print.h"
 
+inline void cuda_check(cudaError_t err, const char* msg){
+    if(err != cudaSuccess){
+        Throw_Error(std::string(msg)," : ",cudaGetErrorString(err));
+    }
+}
+
+inline void cuda_check(cudaError_t err, const char* source, const char* erreur){
+    if(err != cudaSuccess){
+        Throw_Error(source," ",erreur, " : ", cudaGetErrorString(err));
+    }
+}
+
+inline void cuda_check_all(const char* source){
+    cuda_check(cudaGetLastError(), source, "launch failed");
+    cuda_check(cudaDeviceSynchronize(), source, "sync failed");
+}
+
+
+
+
+
 namespace CudaConfig {
-    constexpr int THREADS_PER_BLOCK_1D = 256;
+    constexpr int THREADS_PER_BLOCK_1D = 512;
     constexpr unsigned int THREADS_2D = 16;
 
     inline dim3 threads_per_block_2D(){

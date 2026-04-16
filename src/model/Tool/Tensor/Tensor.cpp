@@ -136,14 +136,6 @@ std::vector<Tensor> Tensor::separation_batch(int batch_size) const{
     if(_data->shape.len() == 0)
         Throw_Error("shuffle impossible : tensor vide");
 
-    int n = _data->shape[0];
-    std::vector<int> indices(n);
-    for(int i = 0; i < n; i++)
-        indices[i] = i;
-
-    std::shuffle(indices.begin(), indices.end(), std::mt19937(std::random_device{}()));
-    _data->shuffle(indices);
-
     std::vector<Tensor> liste;
     if(batch_size <= -1)
         Throw_Error("batch_size invalide >= 0");

@@ -3,14 +3,6 @@
 
 #include "model/Tool/Tensor/CudaData.h"
 
-namespace {
-    void cuda_check(cudaError_t err, const char* msg){
-        if(err != cudaSuccess){
-            Throw_Error(std::string(msg)," : ",cudaGetErrorString(err));
-        }
-    }
-}
-
 template<typename T>
 CudaData<T>::~CudaData(){
     free();
@@ -142,6 +134,80 @@ void CudaData<T>::set(size_t index, T val){
 
     cuda_check(cudaMemcpy(_data + index, &val, sizeof(T), cudaMemcpyHostToDevice),"CudaData set cudaMemcpy HostToDevice failed");
 }
+
+
+
+
+
+
+
+
+
+template<typename T>
+void CudaData<T>::fill_zero(){
+    if(_data == nullptr)
+        Throw_Error("CudaData::fill_zero data null");
+    cuda_check(cudaMemset(_data, 0, _size * sizeof(T)),"cudaMemset failed");
+}
+
+
+__global__ void fill_value_kernel(float* data, float val, size_t n){ // kernel ici pour eviter de créer un nouveau fichier
+    int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id >= n) return;
+    data[id] = val;
+}
+
+template<>
+void CudaData<float>::fill_value(float val){
+    if(_data == nullptr)
+        Throw_Error("CudaData::fill_value data null");
+
+    //version kernel
+    int blocks = CudaConfig::calculs_blocks_1D(_size);
+    fill_value_kernel<<<blocks, CudaConfig::THREADS_PER_BLOCK_1D>>>(_data, val, _size);
+    cuda_check_all("fill_value_kernel");
+}
+//le genreique:
+template<typename T>
+void CudaData<T>::fill_value(T val){
+    Throw_Error("fill_value non implémenté pour ce type");
+}
+
+
+
+
+__global__ void scale_kernel(float* data, size_t n){
+    int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id >= n) return;
+    data[id] = data[id] * 2.0f - 1.0f;
+}
+
+template<>
+void CudaData<float>::fill_random(){
+    if(_data == nullptr)
+        Throw_Error("CudaData::fill_random data null");
+    curandGenerator_t gen;
+    curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
+    curandSetPseudoRandomGeneratorSeed(gen, 1234ULL);
+    // génère entre 0 1
+    curandGenerateUniform(gen, _data, _size);
+    curandDestroyGenerator(gen);
+
+    //version kernel pour passé de 0 1 à -1 1
+    int blocks = CudaConfig::calculs_blocks_1D(_size);
+    scale_kernel<<<blocks, CudaConfig::THREADS_PER_BLOCK_1D>>>(_data, _size);
+    cuda_check_all("curandGenerateUniform");
+}
+//le genreique:
+template<typename T>
+void CudaData<T>::fill_random(){
+    Throw_Error("fill_value non implémenté pour ce type");
+}
+
+
+
+
+
 
 
 

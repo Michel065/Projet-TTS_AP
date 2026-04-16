@@ -323,3 +323,8 @@ __global__ void div_broadcast_axis0_kernel(float* dest, const float* src, int to
     int offset = id % stride;
     dest[id] /= src[offset];
 }
+
+
+
+
+

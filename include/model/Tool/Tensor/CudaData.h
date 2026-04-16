@@ -1,11 +1,13 @@
 #pragma once
 #include <xtensor/xarray.hpp>
 
+#include <curand.h>
 #include <cstddef>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
+#include "model/Tool/Tensor/CudaConfig.cuh"
 #include "model/Tool/Shape.h"
 #include "outil/Print.h"
 
@@ -42,6 +44,10 @@ public:
 
     T get(size_t index) const;
     void set(size_t index, T val);
+
+    void fill_zero();
+    void fill_value(T val);
+    void fill_random();
 };
 
 

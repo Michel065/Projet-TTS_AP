@@ -2,21 +2,6 @@
 #include <string>
 
 
-//verif pour debug conseillé
-void cuda_check(cudaError_t err, const char* source, const char* erreur){
-    if(err != cudaSuccess){
-        Throw_Error(source," ",erreur, " : ", cudaGetErrorString(err));
-    }
-}
-
-void cuda_check_all(const char* source){
-    cuda_check(cudaGetLastError(), source, "launch failed");
-    cuda_check(cudaDeviceSynchronize(), source, "sync failed");
-}
-
-
-
-
 
 // fonction qui execute nos kernel raison de leurs presence ne compile pas hors cu
 void gpu_add(float* a, const float* b, size_t n){

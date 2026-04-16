@@ -183,30 +183,18 @@ void TensorDataGPU::apply_div(float scalar){
 // methode qui modifie nos data Tensor
 void TensorDataGPU::init(Shape _shape, bool alea, int val_init){
     shape = _shape;
-    xt::xarray<float> tmp;
-    if(!alea && val_init != 0){
-        tmp = xt::ones<float>(_shape.dims) * val_init;
+    data_gpu.allocate(get_total_size());
+    if(alea){
+        data_gpu.fill_random();
+    }else if(val_init != 0){
+        data_gpu.fill_value(val_init);
     }else{
-        tmp = xt::zeros<float>(_shape.dims);
+        data_gpu.fill_zero();
     }
-
-    if(alea)
-        fill_alea(tmp);
-    
-    data_gpu.copy_from_cpu(tmp);
 }
 
 void TensorDataGPU::init_with_data(const xt::xarray<float>& arr){
     copy_from_cpu(arr);
-}
-
-void TensorDataGPU::fill_alea(xt::xarray<float>& tmp){
-    std::mt19937 gen(std::random_device{}());
-    std::uniform_real_distribution<float> dist(-1.f, 1.f);
-
-    for(auto& v : tmp.storage()){
-        v = dist(gen);
-    }
 }
 
 void TensorDataGPU::apply_exp(){
@@ -305,9 +293,7 @@ Tensor TensorDataGPU::matmul(const Tensor& b) const{
     const float* A = data_gpu.data();
     const float* B = db->get_data_gpu().data();
     float* C = dres->get_data_gpu().data();
-
     gpu_matmul(C, A, B, rows, trans, cols);
-
     return result;
 }
 
