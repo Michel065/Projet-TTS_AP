@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "model/Tool/Tensor/CudaConfig.cuh"
+#include "model/CudaConfig.cuh"
 #include "model/Tool/Shape.h"
 #include "outil/Print.h"
 

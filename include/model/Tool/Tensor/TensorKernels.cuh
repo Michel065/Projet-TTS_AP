@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/Tool/Tensor/CudaConfig.cuh"
+#include "model/CudaConfig.cuh"
 
 
 // les ops

@@ -1,5 +1,6 @@
 #pragma once
 #include "model/Layer.h"
+#include "model/Layer_conv/LayerConv2D/LayerConv2DCPU.h"
 
 class LayerConv2D : public Layer {
 public:
@@ -16,10 +17,10 @@ public:
 
 private:
     DeviceType _device;
+    
     size_t _nb_filters = 0;
     size_t _kernel = 0;
     size_t _padding = 0;
-    size_t _nbr_channel = 0;
 
     Tensor _W;
     Tensor _b;

@@ -1,4 +1,4 @@
-#include "model/Layer_conv/LayerMaxPool2D.h"
+#include "model/Layer_conv/LayerMaxPool2D/LayerMaxPool2D.h"
 #include "model/Model.h"
 
 LayerMaxPool2D::LayerMaxPool2D() : Layer("MaxPool2D") {

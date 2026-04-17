@@ -1,4 +1,4 @@
-#include "model/Layer_conv/LayerFlatten.h"
+#include "model/Layer_conv/LayerFlatten/LayerFlatten.h"
 #include "model/Model.h"
 
 LayerFlatten::LayerFlatten() : Layer("Flatten") {}

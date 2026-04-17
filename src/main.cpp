@@ -6,25 +6,17 @@
 #include "outil/Print.h"
 #include "test.h"
 #include "model/Model.h"
-#include "model/Layer_dense/Layer_dense.h"
-#include "model/Layer_dense/Layer_norm.h"
-#include "model/Layer_activation/Layer_sigmoid.h"
-#include "model/Layer_activation/Layer_relu.h"
-#include "model/Layer_activation/Layer_softmax.h"
-#include "model/Tool/Shape.h"
 #include "model/Callback/CallbackEarlyStopLoss.h"
-#include "model/Layer_conv/LayerConv2D.h"
-#include "model/Layer_conv/LayerFlatten.h"
-#include "model/Layer_conv/LayerMaxPool2D.h"
+#include "model/Layer_ALL.h"
 
 void test_non_lineaire(DeviceType device = DeviceType::GPU){
     Tensor X, y, x_test;
-    get_data_non_lineaire(X, y, x_test,10000,device);
+    get_data_non_lineaire(X, y, x_test,2000,device);
     size_t nbr_neur_in = (X.get_shape()[1]);
     int nbr_neur_out = y.get_shape()[1];
 
     Print("construction model.");
-    Model model({.input_shape = Shape({nbr_neur_in}), .eta = 3 ,.device=device});
+    Model model({.input_shape = Shape({nbr_neur_in}), .eta = 2 ,.device=device});
     model.add(new LayerNormalisation({-3,-3},{3,3}));// c le min et le max a la main
     model.add(new LayerDense(20));
     model.add(new LayerRelu());
@@ -34,13 +26,14 @@ void test_non_lineaire(DeviceType device = DeviceType::GPU){
     model.add(new LayerRelu());
     model.add(new LayerDense(nbr_neur_out));
     model.add(new LayerSigmoid());
-    model.add_callback(new CallbackEarlyStopLoss({.patience = 7}));
     model.set_loss_function(new LossBinaryCrossEntropy());
+
+    model.add_callback(new CallbackEarlyStopLoss({.patience = 15}));
 
     //model.set_affichge_level(2);
 
     Print("entrainement.");
-    model.fit(X,y,1500,512);
+    model.fit(X,y,1500,256);
     
     Print("Test:");
     Tensor y_test = model.predict(x_test).round(2)*100;
@@ -66,12 +59,12 @@ void test_load(){
     Print("Prediction :",y_test);
 }
 
-void test_CNN(){
+void test_CNN(DeviceType device = DeviceType::CPU){
     Tensor X, y, x_test, y_test;
-    get_data_CNN(X, y, x_test,y_test,DeviceType::GPU);
+    get_data_CNN(X, y, x_test,y_test,device);
 
     Print("construction model.");
-    Model model({.input_shape = Shape({1,28,28}), .eta = 0.11, .device=DeviceType::GPU});
+    Model model({.input_shape = Shape({1,28,28}), .eta = 0.11, .device=device});
 
     model.add(new LayerConv2D(8,3));
     model.add(new LayerRelu());
@@ -89,10 +82,10 @@ void test_CNN(){
     model.add(new LayerSigmoid());
     //model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
 
-    model.set_affichge_level(1);
+    model.set_affichge_level(2);
 
     Print("entrainement.");
-    model.fit(X,y,1,4);
+    model.fit(X,y,100,32);
     
     Print("Test:");
     Tensor pred = model.predict(x_test);
@@ -117,12 +110,11 @@ void test_CNN(){
 
     model.print();
     model.create_graph_loss_entrainement();
-    model.save("./models/model.json");
+    //model.save("./models/model.json");
     
 }
 
 int main() {
-    test_non_lineaire(DeviceType::GPU);
-    //test_perf_cpu_gpu_simple(32000);
+    test_CNN(DeviceType::CPU);
     return 0;
 }
