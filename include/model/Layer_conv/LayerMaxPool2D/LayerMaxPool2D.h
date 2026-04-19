@@ -1,6 +1,7 @@
 #pragma once
 #include "model/Layer.h"
-#include "model/Layer_conv/LayerMaxPool2D/LayerMaxPool2DCPU.h"
+#include "model/Layer_conv/LayerMaxPool2D/LayerMaxPoolCPU.h"
+#include "model/Layer_conv/LayerMaxPool2D/LayerMaxPoolGPU.h"
 
 class LayerMaxPool2D : public Layer {
 public:
@@ -14,9 +15,7 @@ public:
     void load_json(const json& j) override;
 
 private:
-    size_t _channels = 1;
-
-    size_t _last_batch;
+    size_t _taille_batch;
     Tensor _mask; // pour backward (position du max)
 
     inline static AutoRegisterLayer<LayerMaxPool2D> enregistrement{};

@@ -19,13 +19,14 @@ private:
     void copy_from_cpu(const xt::xarray<float>& arr);  
     int calcul_stride(int dim_dep) const;
     bool shape_broadcastable(const Shape& b,int dim_dep=1);
+    
+    const TensorDataGPU* check_gpu(const Tensor& a) const;
+    TensorDataGPU* check_gpu_nc(Tensor& a) const;
 
 public:
     TensorDataGPU() = default;
     ~TensorDataGPU() override;
     TensorDataBase* clone() const override;
-    const TensorDataGPU* check_gpu(const Tensor& a) const;
-    TensorDataGPU* check_gpu_nc(Tensor& a) const;
 
     
     // on bloque la copy direct pour eviter de faire des bétises du coup si je evxu une copy je suis forcé d'utilsier le clone qui est sure 

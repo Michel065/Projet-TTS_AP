@@ -1,23 +1,16 @@
-#include "model/Layer_conv/LayerMaxPool2D/LayerMaxPool2DCPU.h"
+#include "model/Layer_conv/LayerMaxPool2D/LayerMaxPoolCPU.h"
 
-void LayerMaxPool2DCPU::forward(Tensor& output, Tensor& _mask, Tensor& input, Shape shape_input){
-    Shape shape_i= input.get_shape();
+void LayerMaxPoolCPU::forward(Tensor& output, Tensor& _mask, Tensor& input, size_t _taille_batch, Shape shape_output){
+    size_t channels = shape_output[0];
+    size_t out_H = shape_output[1];
+    size_t out_W = shape_output[2];
 
-    _last_batch = shape_i[0];
-    size_t out_H = _shape_output[1];
-    size_t out_W = _shape_output[2];
-
-    Tensor output(input.get_device(),Shape({_last_batch, _channels, out_H, out_W}), false);
-    _mask = Tensor(input.get_device(),shape_i, false);// pour replacer la val lors du back
-
-    for(size_t b = 0; b < _last_batch; b++){
-        for(size_t c = 0; c < _channels; c++){
+    for(size_t b = 0; b < _taille_batch; b++){
+        for(size_t c = 0; c < channels; c++){
             for(size_t y = 0; y < out_H; y++){
                 for(size_t x = 0; x < out_W; x++){
-
-                    size_t in_y = y * 2; // c'est fixe pas modifiable (!= torch)
+                    size_t in_y = y * 2;
                     size_t in_x = x * 2;
-                    
                     // init
                     float max_val = input.get({b, c, in_y, in_x});
                     size_t m_y = in_y, m_x = in_x;
@@ -37,21 +30,15 @@ void LayerMaxPool2DCPU::forward(Tensor& output, Tensor& _mask, Tensor& input, Sh
             }
         }
     }
-    return output;
 }
 
 
-void LayerMaxPool2DCPU::backward(Tensor& grad_W, Tensor& grad_b,Tensor& grad_output,
-    const Tensor& grad_input, Tensor& last_input, Tensor& _W, 
-    size_t nb_filters, size_t kernel, size_t pad,
-    Shape _shape_output){
-    
-    size_t out_H = _shape_output[1];
-    size_t out_W = _shape_output[2];
-    Tensor grad_out(grad.get_device(),Shape({_last_batch,_channels,_shape_input[1],_shape_input[2]}), false);
-
-    for(size_t b = 0; b < _last_batch; b++){
-        for(size_t c = 0; c < _channels; c++){
+void LayerMaxPoolCPU::backward(Tensor& grad_out, Tensor& _mask, Tensor& grad_in, size_t _taille_batch, Shape shape_output){
+    size_t channels = shape_output[0];
+    size_t out_H = shape_output[1];
+    size_t out_W = shape_output[2];
+    for(size_t b = 0; b < _taille_batch; b++){
+        for(size_t c = 0; c < channels; c++){
             for(size_t y = 0; y < out_H; y++){
                 for(size_t x = 0; x < out_W; x++){
                     size_t in_y = y * 2;
@@ -61,7 +48,7 @@ void LayerMaxPool2DCPU::backward(Tensor& grad_W, Tensor& grad_b,Tensor& grad_out
                             size_t yy = in_y + dec_y;
                             size_t xx = in_x + dec_x;
                             if(_mask.get({b,c,yy,xx}) == 1.0f){
-                                grad_out.set({b,c,yy,xx},grad.get({b,c,y,x}));
+                                grad_out.set({b,c,yy,xx},grad_in.get({b,c,y,x}));
                             }
                         }
                     }
@@ -69,5 +56,4 @@ void LayerMaxPool2DCPU::backward(Tensor& grad_W, Tensor& grad_b,Tensor& grad_out
             }
         }
     }
-    return grad_out;
 }

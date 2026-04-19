@@ -27,7 +27,11 @@ DEPS := $(DEPS_CPP) $(DEPS_CU)
 
 OBJS := $(OBJS_CPP) $(OBJS_CU)
 
-all: $(TARGET)
+all:
+	@echo "Compilation..."
+	@time $(MAKE) build
+
+build: $(TARGET)
 
 $(TARGET): $(OBJS)
 	@$(CXX) -o $@ $^ $(LDFLAGS)

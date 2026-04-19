@@ -143,3 +143,11 @@ inline void to_json(json& j, const Tensor& tensor){
         {"data", tensor.get_data()->to_json()}
     };
 }
+
+
+//methode equivaelente a ce qui est deja dans mais c plus simple une de base a l'exterieur de tensor pour que ce oit plus simple et léve une erreur en ca de non valididité, juste donc une methode pour check rapide et raise. 
+inline void check_is_gpu(const Tensor& tens){ // pratique mais pas propre, a changer si j'ai le temps
+    if(!tens.is_gpu()){
+        Throw_Error("Tensor non GPU, utilisation de Cuda impossible");
+    }
+}

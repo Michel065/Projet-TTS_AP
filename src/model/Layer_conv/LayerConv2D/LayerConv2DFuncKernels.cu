@@ -1,11 +1,5 @@
 #include "model/Layer_conv/LayerConv2D/LayerConv2DFuncKernels.cuh"
 
-void check_is_gpu(const Tensor& tens){
-    if(!tens.is_gpu()){
-        Throw_Error("Tensor non GPU, utilisation de Cuda impossible");
-    }
-}
-
 void gpu_im2col(Tensor& input_col, Tensor& input, size_t Kernel, size_t pad){
     check_is_gpu(input_col);
     check_is_gpu(input);

@@ -37,8 +37,6 @@ void LayerConv2D::build(){
     //pour le print
     _nb_params = shape_poid.size();//les filtres
     _nb_params += shape_b.size();//le bias
-
-
     print_couche_msg("Build termine.",Color::GREEN);
 }
 
@@ -51,14 +49,12 @@ void LayerConv2D::get_from_model(){
 
 Tensor LayerConv2D::forward(Tensor& input){
     _last_input = input;
-    
     Tensor output(input.get_device(),Shape({input.get_shape()[0], _nb_filters, _shape_input[1], _shape_input[2]}), false);
     if(input.is_cpu()){
         LayerConv2DCPU::forward(output,input,_W,_b,_nb_filters,_kernel,_padding,_shape_input);
     }else if(input.is_gpu()){
         LayerConv2DGPU::forward(output, input, _W, _b,_nb_filters, _kernel, _padding, _shape_input);
     }
-
     return output;
 }
 
@@ -67,16 +63,13 @@ Tensor LayerConv2D::backward(Tensor& grad){
     Tensor grad_W(grad.get_device(), _W.get_shape(), false);
     Tensor grad_b(grad.get_device(),_b.get_shape(), false);
     Tensor grad_prec(grad.get_device(),_last_input.get_shape(), false);
-
     if(grad.is_cpu()){
         LayerConv2DCPU::backward(grad_W,grad_b,grad_prec,grad,_last_input,_W,_nb_filters,_kernel,_padding,_shape_input);
     }else if(grad.is_gpu()){
         LayerConv2DGPU::backward(grad_W, grad_b, grad_prec,grad, _last_input, _W,_nb_filters, _kernel, _padding, _shape_input);
     }
- 
     _W -= grad_W * _eta;
     _b -= grad_b * _eta;
-
     return grad_prec;
 }
 
