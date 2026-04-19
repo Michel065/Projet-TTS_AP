@@ -1,6 +1,8 @@
 data/*
 ext_inc/*
 
+main
+
 .vscode/
 
 # Prerequisites
