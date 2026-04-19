@@ -1,5 +1,4 @@
-#include <xtensor/xarray.hpp>
-#include <chrono>
+
 
 #include "test.h"
 
@@ -86,69 +85,153 @@ void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n,DeviceT
 
 
 // recup d'internet et modifié
-static uint32_t read_uint32_be(std::ifstream& file){
-    unsigned char bytes[4];
-    file.read(reinterpret_cast<char*>(bytes), 4);
-    return (uint32_t(bytes[0]) << 24) |
-           (uint32_t(bytes[1]) << 16) |
-           (uint32_t(bytes[2]) << 8)  |
-           uint32_t(bytes[3]);
+// modif methode, ca marché pas donc recup fichier forat cvv et conv xr array puis conv tensor.
+void load_mnist_csv(Tensor& X, Tensor& y, const std::string& path,DeviceType device){
+    std::ifstream file(path);
+    if(!file.is_open()){
+        throw std::runtime_error("Impossible d'ouvrir le fichier : " + path);
+    }
+    std::string line;
+    if(!std::getline(file, line)){
+        throw std::runtime_error("Fichier vide : " + path);
+    }
+    std::vector<float> images_data;
+    std::vector<float> labels_data;
+    size_t nb_samples = 0;
+    while(std::getline(file, line)){
+        if(line.empty()) continue;
+        std::stringstream ss(line);
+        std::string cell;
+        if(!std::getline(ss, cell, ',')){
+            throw std::runtime_error("Ligne invalide dans : " + path);
+        }
+        int label = std::stoi(cell);
+        if(label < 0 || label > 9){
+            throw std::runtime_error("Label invalide dans : " + path);
+        }
+        for(int k = 0; k < 10; k++){
+            labels_data.push_back(k == label ? 1.0f : 0.0f); // conv en onehot
+        }
+        size_t pixel_count = 0;
+        while(std::getline(ss, cell, ',')){
+            float v = std::stof(cell);
+            images_data.push_back(v);
+            pixel_count++;
+        }
+        if(pixel_count != 28 * 28){
+            Throw_Error("Nombre de pixels invalide,",pixel_count);
+        }
+        nb_samples++;
+    }
+    X = Tensor(device,xt::adapt(images_data, {nb_samples, size_t(1), size_t(28), size_t(28)}));
+    y = Tensor(device,xt::adapt(labels_data, {nb_samples, size_t(10)}));
 }
 
-void get_data_CNN(Tensor& X, Tensor& y, Tensor& x_test, Tensor& y_test,DeviceType device){
-    std::string path_images = "./data/mnist/t10k-images-idx3-ubyte";
-    std::string path_labels = "./data/mnist/t10k-labels-idx1-ubyte";
-    std::ifstream file_images(path_images, std::ios::binary);
-    std::ifstream file_labels(path_labels, std::ios::binary);
-    uint32_t magic_images = read_uint32_be(file_images);
-    uint32_t nb_images = read_uint32_be(file_images);
-    uint32_t magic_labels = read_uint32_be(file_labels);
-    if(magic_images != 2051){
-        Throw_Error("Magic number images invalide.");
-        return;
-    }
-    if(magic_labels != 2049){
-        Throw_Error("Magic number labels invalide.");
-        return;
-    }
-    size_t nb_test = 10;
-    size_t nb_train = nb_images - nb_test;
-    xt::xarray<float> arr_X = xt::zeros<float>(std::vector<size_t>{nb_train, 1, 28, 28});
-    xt::xarray<float> arr_y = xt::zeros<float>(std::vector<size_t>{nb_train, 10});
-    xt::xarray<float> arr_x_test = xt::zeros<float>(std::vector<size_t>{nb_test, 1, 28, 28});
-    xt::xarray<float> arr_y_test = xt::zeros<float>(std::vector<size_t>{nb_test, 10});
-    for(size_t i = 0; i < nb_images; i++){
-        unsigned char label_char;
-        file_labels.read(reinterpret_cast<char*>(&label_char), 1);
-        size_t label = static_cast<size_t>(label_char);
+void get_data_CNN(Tensor& X_train,Tensor& y_train,Tensor& X_test,Tensor& y_test,DeviceType device){
+    load_mnist_csv(X_train, y_train, "./data/mnist/mnist_train.csv", device);
+    load_mnist_csv(X_test, y_test, "./data/mnist/mnist_test.csv", device);
+}
 
-        for(size_t r = 0; r < 28; r++){
-            for(size_t c = 0; c < 28; c++){
-                unsigned char pixel_char;
-                file_images.read(reinterpret_cast<char*>(&pixel_char), 1);
-                float pixel = float(pixel_char) / 255.0f;
 
-                if(i < nb_test){
-                    arr_x_test(i, 0, r, c) = pixel;
-                }else{
-                    arr_X(i - nb_test, 0, r, c) = pixel;
-                }
+void print_exemeple_image(Tensor& images,size_t index){
+    //on suppose toujours le meme format nbr images, channels , h , w
+    size_t C = images.get_shape()[1];
+    size_t H = images.get_shape()[2];
+    size_t W = images.get_shape()[3];
+
+    for(size_t c = 0; c < C; c++){
+        Print("Channel ", c);
+        for(size_t h = 0; h < H; h++){
+            std::string ligne = "";
+            for(size_t w = 0; w < W; w++){
+                float val = images.get({index, c, h, w});
+                if(val >1){val/=255.0;}
+
+                // on fait une sorte de degradé pour l'instant
+                if(val > 0.75f) ligne += "#";
+                else if(val > 0.5f) ligne += "O";
+                else if(val > 0.25f) ligne += ".";
+                else ligne += " ";
+            }
+            Print(ligne);
+        }
+        Print("\n");
+    }
+}
+
+void evaluate_cnn(Model& model, Tensor X, Tensor y){
+    Tensor y_pred = model.predict(X);
+    const xt::xarray<float> y_pred_data = y_pred.get_data()->to_json();
+    const xt::xarray<float> y_data = y.get_data()->to_json();
+
+    size_t batch = y_pred_data.shape()[0];
+    size_t nb_classes = y_pred_data.shape()[1];
+    size_t correct = 0;
+
+    std::vector<size_t> count_true(nb_classes, 0);
+    std::vector<size_t> count_pred(nb_classes, 0);
+    std::vector<size_t> count_correct_per_class(nb_classes, 0);
+    std::vector<std::vector<size_t>> confusion(nb_classes, std::vector<size_t>(nb_classes, 0));
+
+    for(size_t i = 0; i < batch; i++){
+        size_t pred_class = 0;
+        size_t true_class = 0;
+        float pred_max = y_pred_data(i, 0);
+        float true_max = y_data(i, 0);
+
+        for(size_t j = 1; j < nb_classes; j++){
+            if(y_pred_data(i, j) > pred_max){
+                pred_max = y_pred_data(i, j);
+                pred_class = j;
+            }
+            if(y_data(i, j) > true_max){
+                true_max = y_data(i, j);
+                true_class = j;
             }
         }
 
-        if(i < nb_test){
-            arr_y_test(i, label) = 1.0f;
-        }else{
-            arr_y(i - nb_test, label) = 1.0f;
+        count_true[true_class]++;
+        count_pred[pred_class]++;
+        confusion[true_class][pred_class]++;
+
+        if(pred_class == true_class){
+            correct++;
+            count_correct_per_class[true_class]++;
         }
     }
 
-    X = Tensor(device, arr_X);
-    y = Tensor(device, arr_y);
-    x_test = Tensor(device, arr_x_test);
-    y_test = Tensor(device, arr_y_test);
-    Print("nb_images au total : ",nb_images);
+    float accuracy = static_cast<float>(correct) / static_cast<float>(batch);
+    Print("Accuracy : ", accuracy * 100.0f, "%");
+    Print("");
+
+    Print("Stats par classe :");
+    for(size_t c = 0; c < nb_classes; c++){
+        float class_acc = 0.0f;
+        if(count_true[c] > 0)
+            class_acc = static_cast<float>(count_correct_per_class[c]) / static_cast<float>(count_true[c]);
+
+        Print(
+            "Classe ", c,
+            " | reel: ", count_true[c],
+            " | predit: ", count_pred[c],
+            " | correct: ", count_correct_per_class[c],
+            " | recall: ", class_acc * 100.0f, "%"
+        );
+    }
+
+    Print("");
+    Print("Matrice de confusion (reel => predit) :");
+    for(size_t i = 0; i < nb_classes; i++){
+        std::string ligne = "Classe " + std::to_string(i) + " : ";
+        for(size_t j = 0; j < nb_classes; j++){
+            ligne += std::to_string(confusion[i][j]);
+            if(j + 1 < nb_classes)
+                ligne += " ";
+        }
+        Print(ligne);
+    }
 }
+
 
 
 

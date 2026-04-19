@@ -190,21 +190,34 @@ bool Tensor::is_gpu() const{
 
 
 //methode void
-
 void Tensor::to_cpu(){
     if(device == DeviceType::CPU)
         return;
 
-    //logique a faire de conv
+    if(_data == nullptr)
+        Throw_Error("Tensor::to_cpu impossible, _data est null");
+   
+    xt::xarray<float> arr = _data->to_json();
+
+    delete _data;// ondetruit et on remplace
     device = DeviceType::CPU;
+    init_data_struct();
+    _data->init_with_data(arr);
 }
 
 void Tensor::to_gpu(){
     if(device == DeviceType::GPU)
         return;
 
-    //logique a faire de conv plus tard
+    if(_data == nullptr)
+        Throw_Error("Tensor::to_gpu impossible, _data est null");
+
+    xt::xarray<float> arr = _data->to_json();
+
+    delete _data;
     device = DeviceType::GPU;
+    init_data_struct();
+    _data->init_with_data(arr);
 }
 
 void Tensor::init_data_struct(){

@@ -2,13 +2,13 @@
 
 __global__ void MaxPool2D_div2_kernel(float* output,float* mask,const float* input,size_t batch,size_t channels,size_t out_h,size_t out_w,size_t in_h,size_t in_w){
     size_t x = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t y = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t z = blockIdx.z;
+    size_t yc = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t b = blockIdx.z;
 
-    if(x >= out_w || y >= out_h || z >= batch * channels) return;
+    if(x >= out_w || yc >= channels * out_h || b >= batch) return;
 
-    size_t b = z / channels;
-    size_t c = z % channels;
+    size_t c = yc / out_h;// la raison de pk batch * out_h et pas batch * channels c que quand je fait un test avec un enssemble entier donc equivalent batch a 10 000 ca dépasse l'indexation max de z.
+    size_t y = yc % out_h;
 
     size_t in_y = y * 2;
     size_t in_x = x * 2;
@@ -42,13 +42,13 @@ __global__ void MaxPool2D_div2_kernel(float* output,float* mask,const float* inp
 
 __global__ void MaxPool2D_mul2_kernel(float* grad_out,float* mask,const float* grad_input,size_t batch,size_t channels,size_t out_h,size_t out_w,size_t in_h,size_t in_w){
     size_t x = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t y = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t z = blockIdx.z;
+    size_t yc = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t b = blockIdx.z;
 
-    if(x >= in_w || y >= in_h || z >= batch * channels) return;
+    if(x >= in_w || yc >= channels * in_h || b >= batch) return;
 
-    size_t b = z / channels;
-    size_t c = z % channels;
+    size_t c = yc / in_h;
+    size_t y = yc % in_h;
 
     size_t out_y = y / 2;
     size_t out_x = x / 2;

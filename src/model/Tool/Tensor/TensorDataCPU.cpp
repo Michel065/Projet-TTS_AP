@@ -218,7 +218,7 @@ Tensor TensorDataCPU::extraction_section_axe_0(int debut, int fin) const{
         Throw_Error("Tensor vide");
     int nbr_val_tensor = shape[0];
     if(debut < 0 || fin < 0 || debut > fin || fin > nbr_val_tensor)
-        Throw_Error("Indices invalides dans extraction_section_axe_0");
+        Throw_Error("Indices invalides dans extraction_section_axe_0",nbr_val_tensor," ",fin," ",debut);
 
     xt::xstrided_slice_vector slices;
     slices.push_back(xt::range(debut, fin));

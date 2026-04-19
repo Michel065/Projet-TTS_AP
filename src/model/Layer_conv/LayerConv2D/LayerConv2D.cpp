@@ -41,7 +41,7 @@ void LayerConv2D::build(){
 }
 
 void LayerConv2D::get_from_model(){
-    if(_model != nullptr)
+    if(_model == nullptr)
         return;
     _eta = _model->get_eta();
     _device = _model->get_device();
@@ -76,9 +76,15 @@ Tensor LayerConv2D::backward(Tensor& grad){
 void LayerConv2D::to_json(json& j) const{
     j["_W"]=_W; 
     j["_b"]=_b;
+    j["_nb_filters"]=_nb_filters;
+    j["_kernel"]=_kernel;
+    j["_padding"]=_padding;
 }
 
 void LayerConv2D::load_json(const json& j) {
     j.at("_W").get_to(_W);
     j.at("_b").get_to(_b);
+    j.at("_nb_filters").get_to(_nb_filters);
+    j.at("_kernel").get_to(_kernel);
+    j.at("_padding").get_to(_padding);
 }

@@ -107,17 +107,25 @@ void TensorDataGPU::apply_add(const Tensor& b){
 void TensorDataGPU::apply_sub(const Tensor& b){
     auto db = check_gpu(b);
     Shape b_shape = b.get_shape();
+
     if(shape == b_shape){
-        gpu_sub(data_gpu.data(),db->get_data_gpu().data(),get_total_size());
+        gpu_sub(data_gpu.data(), db->get_data_gpu().data(), get_total_size());
         return;
     }
-    if(shape.len() == b_shape.len() && b_shape[0] == 1){
-        if(shape_broadcastable(b_shape,1)){
-            gpu_sub_broadcast_axis0(data_gpu.data(),db->get_data_gpu().data(),(int)shape[0],calcul_stride(1));
+
+    if(shape.len() == 2 && b_shape.len() == 2){
+        if(b_shape[0] == 1 && b_shape[1] == shape[1]){
+            gpu_sub_broadcast_axis0(data_gpu.data(),db->get_data_gpu().data(),(int)shape[0],(int)shape[1]);
+            return;
+        }
+
+        if(b_shape[0] == shape[0] && b_shape[1] == 1){
+            gpu_sub_broadcast_axis1(data_gpu.data(),db->get_data_gpu().data(),(int)shape[0],(int)shape[1]);
             return;
         }
     }
-    Throw_Error("Shape non pris en compte, TensorDataGPU sub impossble, actuellement");
+
+    Throw_Error("Shape non pris en compte, TensorDataGPU sub impossible, actuellement");
 }
 
 void TensorDataGPU::apply_mul(const Tensor& b){
@@ -139,16 +147,32 @@ void TensorDataGPU::apply_mul(const Tensor& b){
 void TensorDataGPU::apply_div(const Tensor& b){
     auto db = check_gpu(b);
     Shape b_shape = b.get_shape();
+
     if(shape == b_shape){
-        gpu_div(data_gpu.data(),db->get_data_gpu().data(),get_total_size());
+        gpu_div(data_gpu.data(), db->get_data_gpu().data(), get_total_size());
         return;
     }
+
+    if(shape.len() == 2 && b_shape.len() == 2){
+        if(b_shape[0] == 1 && b_shape[1] == shape[1]){
+            gpu_div_broadcast_axis0(data_gpu.data(),db->get_data_gpu().data(),(int)shape[0],(int)shape[1]);
+            return;
+        }
+
+        if(b_shape[0] == shape[0] && b_shape[1] == 1){
+            gpu_div_broadcast_axis1(data_gpu.data(),db->get_data_gpu().data(),(int)shape[0],(int)shape[1]);
+            return;
+        }
+    }
+
     if(shape.len() == b_shape.len() && b_shape[0] == 1){
-        if(shape_broadcastable(b_shape,1)){
+        if(shape_broadcastable(b_shape, 1)){
             gpu_div_broadcast_axis0(data_gpu.data(),db->get_data_gpu().data(),(int)shape[0],calcul_stride(1));
             return;
         }
     }
+
+    Print("Shape:", shape.print(), " ", b_shape.print());
     Throw_Error("Shape non pris en compte, TensorDataGPU div impossble, actuellement");
 }
 

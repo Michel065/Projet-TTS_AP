@@ -50,3 +50,9 @@ __global__ void div_broadcast_axis0_kernel(float* dest, const float* src, int to
 __global__ void broadcast_matmul_kernel_shared(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols,bool batch_on_a);
 __global__ void broadcast_all_matmul_kernel_shared(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols);
 
+
+
+
+// brod casr de subsur l'axe 1 pour le softmax
+__global__ void sub_broadcast_axis1_kernel(float* dest, const float* src, int total, int cols);
+__global__ void div_broadcast_axis1_kernel(float* dest, const float* src, int total, int cols);

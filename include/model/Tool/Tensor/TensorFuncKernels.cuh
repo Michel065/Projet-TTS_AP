@@ -48,3 +48,9 @@ void gpu_div_broadcast_axis0(float* dest, const float* src, int nbr_broadcast, i
 // matmul version broadcast
 void gpu_broadcast_matmul(float* dest, const float* source_a, const float* source_b, int batch, int rows, int trans, int cols, bool batch_on_a=false);
 void gpu_broadcast_all_matmul(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols);
+
+
+
+// brod casr de subsur l'axe 1 pour le softmax
+void gpu_sub_broadcast_axis1(float* dest, const float* src, int rows, int cols);
+void gpu_div_broadcast_axis1(float* dest, const float* src, int rows, int cols);

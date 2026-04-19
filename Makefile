@@ -1,6 +1,5 @@
 CXX = g++
 NVCC = nvcc
-
 CUDA_INC = /usr/local/cuda/include
 CUDA_LIB = /usr/local/cuda/lib64
 
@@ -27,14 +26,10 @@ DEPS := $(DEPS_CPP) $(DEPS_CU)
 
 OBJS := $(OBJS_CPP) $(OBJS_CU)
 
-all:
-	@echo "Compilation..."
-	@time $(MAKE) build
-
-build: $(TARGET)
+all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 	@echo ""
 	@echo "Generation de l'executable $(TARGET) Done."
 

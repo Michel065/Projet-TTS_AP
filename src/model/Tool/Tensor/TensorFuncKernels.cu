@@ -218,3 +218,24 @@ void gpu_broadcast_all_matmul(float* dest,const float* source_a,const float* sou
 
     cuda_check_all("broadcast_all_matmul_kernel_shared");
 }
+
+
+
+
+
+
+
+// brod casr de subsur l'axe 1 pour le softmax
+void gpu_sub_broadcast_axis1(float* dest, const float* src, int rows, int cols){
+    int total = rows * cols;
+    int blocks = CudaConfig::calculs_blocks_1D(total);
+    sub_broadcast_axis1_kernel<<<blocks, CudaConfig::THREADS_PER_BLOCK_1D>>>(dest, src, total, cols);
+    cuda_check_all("sub_broadcast_axis1_kernel");
+}
+
+void gpu_div_broadcast_axis1(float* dest, const float* src, int rows, int cols){
+    int total = rows * cols;
+    int blocks = CudaConfig::calculs_blocks_1D(total);
+    div_broadcast_axis1_kernel<<<blocks, CudaConfig::THREADS_PER_BLOCK_1D>>>(dest, src, total, cols);
+    cuda_check_all("div_broadcast_axis1_kernel");
+}

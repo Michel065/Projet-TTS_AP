@@ -41,10 +41,8 @@ void Model::add(Layer* layer){
 
 Tensor Model::forward(Tensor& input){
     Tensor tmp = input;
-    Tensor tmp_save = input;
-	
     for(size_t i = 0; i < _layers.size(); ++i){
-		tmp_save = tmp;
+		//Print("forward i:",i);
         tmp = _layers[i]->forward(tmp);
     }
     return tmp;
@@ -52,7 +50,10 @@ Tensor Model::forward(Tensor& input){
 
 void Model::backward(Tensor grad){
 	Tensor tmp = grad;
+	//int i=0;
 	for (auto it = _layers.rbegin(); it != _layers.rend(); ++it) {
+		//Print("backward i:",i);
+		//i++;
 		tmp = (*it)->backward(tmp);
 	}
 }
@@ -133,13 +134,12 @@ void Model::fit(Tensor input,Tensor y,int epochs,int batch_size,bool shuffle){
 			loss_moy += loss_tmp;
 			backward(_loss_function->calcul_grad(Y_pred, y_split[id_it]));
 			
-
 			//prediction du temps calculs
 			float temps_it = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - debut_it).count();
 			temps_restant = update_time_estimation(temps_it, epochs * nbr_split, i * nbr_split + id_it + 1);
 
-			if(_type_aff == 1)
-				Print_over("Epochs : ",i+1,"/", epochs, " iteration : ", id_it+1, "/", nbr_split," loss train : ",round_esti(_train_loss_history.back())," temps restant (fin du train): ", std::round(temps_restant), "s");
+			if(_type_aff == 1) 
+				Print_over("Epochs : ",i+1,"/",epochs," iteration : ",id_it+1,"/",nbr_split," loss train : ",round_esti(loss_moy/(id_it+1))," temps restant (fin du train): ",std::round(temps_restant),"s");
 		}
 
 		auto t_train_loop_end = std::chrono::high_resolution_clock::now();

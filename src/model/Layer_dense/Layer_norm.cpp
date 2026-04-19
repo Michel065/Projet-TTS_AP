@@ -54,6 +54,7 @@ Tensor LayerNormalisation::forward(Tensor& input){
 }
 
 Tensor LayerNormalisation::backward(Tensor& grad){
+    /* pas utile mais on sais jamais
     switch(_type_norm){
         case TypeNormalisation::DEFAULT:
             return calc_defaut_grad(grad);
@@ -61,8 +62,9 @@ Tensor LayerNormalisation::backward(Tensor& grad){
         case TypeNormalisation::ALTERNATIVE:
             return calc_alternative_grad(grad);
     }
-
+    
     Throw_Error("TypeNormalisation inconnu");
+    */
     return grad;
 }
 

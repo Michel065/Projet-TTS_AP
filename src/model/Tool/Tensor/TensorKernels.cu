@@ -442,3 +442,21 @@ __global__ void broadcast_all_matmul_kernel_shared(float* dest,const float* sour
 
 
 
+
+
+
+
+// brod casr de subsur l'axe 1 pour le softmax
+__global__ void sub_broadcast_axis1_kernel(float* dest, const float* src, int total, int cols){
+    int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id >= total) return;
+    int row = id / cols;
+    dest[id] -= src[row];
+}
+
+__global__ void div_broadcast_axis1_kernel(float* dest, const float* src, int total, int cols){
+    int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id >= total) return;
+    int row = id / cols;
+    dest[id] /= src[row];
+}
