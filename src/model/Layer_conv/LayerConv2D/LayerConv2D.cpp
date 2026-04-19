@@ -1,8 +1,6 @@
 #include "model/Layer_conv/LayerConv2D/LayerConv2D.h"
 #include "model/Model.h"
 
-//https://eunomia.dev/others/cuda-tutorial/06-cnn-convolution/
-
 LayerConv2D::LayerConv2D(size_t nb_filters, size_t kernel) : Layer("Conv2D"){
     if( (int)(kernel / 2) == 0){   
         Throw_Error("Kernel doit etre impaire");
@@ -26,11 +24,15 @@ void LayerConv2D::build(){
     } 
     set_output_shape(Shape({_nb_filters,_shape_input[1],_shape_input[2]}));
 
-    Shape shape_poid({_nb_filters,_shape_input[0],_kernel, _kernel});
+    Shape shape_poid({_nb_filters,_shape_input[0],_kernel, _kernel});  
     Shape shape_b({_nb_filters});
 
     _W = Tensor(_device,shape_poid,true);
     _b = Tensor(_device,shape_b,false);
+
+    if(_W.is_gpu()){
+        _W.reshape(Shape({_nb_filters,_shape_input[0]*_kernel*_kernel}));
+    }
 
     //pour le print
     _nb_params = shape_poid.size();//les filtres
@@ -54,14 +56,14 @@ Tensor LayerConv2D::forward(Tensor& input){
     if(input.is_cpu()){
         LayerConv2DCPU::forward(output,input,_W,_b,_nb_filters,_kernel,_padding,_shape_input);
     }else if(input.is_gpu()){
-
+        LayerConv2DGPU::forward(output, input, _W, _b,_nb_filters, _kernel, _padding, _shape_input);
     }
 
     return output;
 }
 
 
-Tensor LayerConv2D::backward(const Tensor& grad){
+Tensor LayerConv2D::backward(Tensor& grad){
     Tensor grad_W(grad.get_device(), _W.get_shape(), false);
     Tensor grad_b(grad.get_device(),_b.get_shape(), false);
     Tensor grad_prec(grad.get_device(),_last_input.get_shape(), false);
@@ -69,7 +71,7 @@ Tensor LayerConv2D::backward(const Tensor& grad){
     if(grad.is_cpu()){
         LayerConv2DCPU::backward(grad_W,grad_b,grad_prec,grad,_last_input,_W,_nb_filters,_kernel,_padding,_shape_input);
     }else if(grad.is_gpu()){
-        
+        LayerConv2DGPU::backward(grad_W, grad_b, grad_prec,grad, _last_input, _W,_nb_filters, _kernel, _padding, _shape_input);
     }
  
     _W -= grad_W * _eta;

@@ -23,7 +23,7 @@ __global__ void round_kernel(float* a, float factor, size_t n);
 __global__ void clip_kernel(float* a, float b_min, float b_max, size_t n);
 __global__ void log_kernel(float* a, size_t n);
 __global__ void sup_kernel(float* a, float scalar, size_t n);
-__global__ void transpose_kernel(float* dest, const float* source, int rows, int cols);
+__global__ void transpose_kernel(float* dest, const float* source, int rows, int cols, int batch = 1);
 
 __global__ void matmul_kernel(float* dest,const float* source_a,const float* source_b, int rows, int trans, int cols);
 __global__ void matmul_kernel_shared(float* dest, const float* source_a, const float* source_b, int rows, int trans, int cols);
@@ -43,3 +43,10 @@ __global__ void add_broadcast_axis0_kernel(float* dest, const float* src, int to
 __global__ void sub_broadcast_axis0_kernel(float* dest, const float* src, int total, int stride);
 __global__ void mul_broadcast_axis0_kernel(float* dest, const float* src, int total, int stride);
 __global__ void div_broadcast_axis0_kernel(float* dest, const float* src, int total, int stride);
+
+
+
+// matmul version broadcast
+__global__ void broadcast_matmul_kernel_shared(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols,bool batch_on_a);
+__global__ void broadcast_all_matmul_kernel_shared(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols);
+

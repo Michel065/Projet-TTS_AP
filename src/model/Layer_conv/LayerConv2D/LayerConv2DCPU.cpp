@@ -1,6 +1,5 @@
 #include "model/Layer_conv/LayerConv2D/LayerConv2DCPU.h"
 
-//https://eunomia.dev/others/cuda-tutorial/06-cnn-convolution/
 
 void LayerConv2DCPU::forward(Tensor& output, Tensor& input, const Tensor& _W, const Tensor& _b,size_t nb_filters, size_t kernel, size_t pad, Shape shape_input){
     size_t batch = input.get_shape()[0];

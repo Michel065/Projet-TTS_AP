@@ -1,6 +1,7 @@
 #pragma once
 #include "model/Layer.h"
 #include "model/Layer_conv/LayerConv2D/LayerConv2DCPU.h"
+#include "model/Layer_conv/LayerConv2D/LayerConv2DGPU.h"
 
 class LayerConv2D : public Layer {
 public:
@@ -10,7 +11,7 @@ public:
     void build() override;
     void get_from_model();
     Tensor forward(Tensor& input) override;
-    Tensor backward(const Tensor& grad) override;
+    Tensor backward(Tensor& grad) override;
 
     void to_json(json& j) const override;
     void load_json(const json& j) override;

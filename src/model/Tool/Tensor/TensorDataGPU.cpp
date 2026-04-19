@@ -225,22 +225,31 @@ void TensorDataGPU::calcul_sup(float scalar){
     gpu_sup(data_gpu.data(),scalar,get_total_size());
 }
 
-void TensorDataGPU::transpose(){
+void TensorDataGPU::transpose(bool batch){
     if(shape.len() == 1){
         shape.dims = {shape.dims[0], 1};
         return;
     }
 
-    if(shape.len() != 2){
-        Throw_Error("Dimension invalide != 2 pour transposeGPU ",shape.print());
+    if(shape.len() == 2){
+        CudaData<float> tmp;
+        tmp.allocate(get_total_size());
+        gpu_transpose(tmp.data(), data_gpu.data(), shape.dims[0], shape.dims[1], 1);
+        data_gpu = std::move(tmp);
+        std::swap(shape.dims[0], shape.dims[1]);
+        return;
     }
 
-    CudaData tmp; // on peux pas changer d'un coup on dois le palcer dans une dest
-    tmp.allocate(get_total_size());
-    // on fait le transpose
-    gpu_transpose(tmp.data(), data_gpu.data(), shape.dims[0], shape.dims[1]);
-    data_gpu = std::move(tmp);// on move pour eviter de copier
-    std::swap(shape.dims[0], shape.dims[1]); // et on echange sachant que la c'est lock en 2d donc on peux le faire
+    if(shape.len() == 3 && batch){
+        CudaData<float> tmp;
+        tmp.allocate(get_total_size());
+        gpu_transpose(tmp.data(), data_gpu.data(), shape.dims[1], shape.dims[2], shape.dims[0]);
+        data_gpu = std::move(tmp);
+        std::swap(shape.dims[1], shape.dims[2]);
+        return;
+    }
+
+    Throw_Error("Dimension invalide pour transposeGPU ", shape.print());
 }
 
 void TensorDataGPU::reshape(Shape format){
@@ -275,26 +284,81 @@ Tensor TensorDataGPU::matmul(const Tensor& b) const{
     auto db = check_gpu(b);
     Shape b_shape = b.get_shape();
 
-    if(shape.len() != 2 || b_shape.len() != 2){
-        Throw_Error("matmul GPU nécessite 2D");
+    if(shape.len() != 2 && shape.len() != 3){
+        Throw_Error("matmul GPU : le tensor de gauche doit etre 2D");
     }
 
     int rows = shape[0];
     int trans = shape[1];
-    int cols = b_shape[1];
-
-    if(trans != (int)b_shape[0]){
-        Throw_Error("matmul imposible trans invalide GPU");
-    }
-
-    Tensor result(DeviceType::GPU, Shape({(size_t)rows, (size_t)cols}));
-    auto dres = check_gpu_nc(result);
 
     const float* A = data_gpu.data();
     const float* B = db->get_data_gpu().data();
-    float* C = dres->get_data_gpu().data();
-    gpu_matmul(C, A, B, rows, trans, cols);
-    return result;
+
+    if(shape.len() == 2 && b_shape.len() == 2){
+        int cols = b_shape[1];
+        if(trans != (int)b_shape[0]){
+            Throw_Error("matmul GPU impossible : dimensions incompatibles");
+        }
+        Tensor result(DeviceType::GPU, Shape({(size_t)rows, (size_t)cols}));
+        auto dres = check_gpu_nc(result);
+        float* C = dres->get_data_gpu().data();
+        gpu_matmul(C, A, B, rows, trans, cols);
+        return result;
+    }
+
+    if(shape.len() == 2 && b_shape.len() == 3){
+        int batch = b_shape[0];
+        int b_trans = b_shape[1];
+        int cols = b_shape[2];
+        if(trans != b_trans){
+            Throw_Error("matmul GPU broadcast impossible : dimensions invalide");
+        }
+        Tensor result(DeviceType::GPU, Shape({(size_t)batch, (size_t)rows, (size_t)cols}));
+        auto dres = check_gpu_nc(result);
+        gpu_broadcast_matmul(dres->get_data_gpu().data(), A, B, batch, rows, trans, cols, false);
+        return result;
+    }
+
+    if(shape.len() == 3 && b_shape.len() == 2){
+        int batch = shape[0];
+        int a_rows = shape[1];
+        int a_trans = shape[2];
+        int cols = b_shape[1];
+        if(a_trans != (int)b_shape[0]){
+            Throw_Error("matmul GPU broadcast impossible : dimensions invalide");
+        }
+        Tensor result(DeviceType::GPU, Shape({(size_t)batch, (size_t)a_rows, (size_t)cols}));
+        auto dres = check_gpu_nc(result);
+        gpu_broadcast_matmul(dres->get_data_gpu().data(), A, B, batch, a_rows, a_trans, cols, true);
+        return result;
+    }
+
+    if(shape.len() == 3 && b_shape.len() == 3){
+        int batch_a = shape[0];
+        int a_rows  = shape[1];
+        int a_trans = shape[2];
+
+        int batch_b = b_shape[0];
+        int b_trans = b_shape[1];
+        int cols    = b_shape[2];
+
+        if(batch_a != batch_b){
+            Throw_Error("matmul GPU batch impossible : batch differents");
+        }
+        if(a_trans != b_trans){
+            Throw_Error("matmul GPU batch impossible : dimensions incompatibles");
+        }
+
+        Tensor result(DeviceType::GPU, Shape({(size_t)batch_a, (size_t)a_rows, (size_t)cols}));
+        auto dres = check_gpu_nc(result);
+
+        gpu_broadcast_all_matmul(dres->get_data_gpu().data(),A, B,batch_a, a_rows, a_trans, cols);
+
+        return result;
+    }
+
+    Throw_Error("matmul GPU : shape non valide, pour l'instant");
+    return Tensor();
 }
 
 Tensor TensorDataGPU::sum_axis(std::size_t axis, bool keep_dims) const{

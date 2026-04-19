@@ -1,5 +1,6 @@
 #pragma once
 #include "model/Layer.h"
+#include "model/Layer_conv/LayerMaxPool2D/LayerMaxPool2DCPU.h"
 
 class LayerMaxPool2D : public Layer {
 public:
@@ -7,7 +8,7 @@ public:
 
     void build() override;
     Tensor forward(Tensor& input) override;
-    Tensor backward(const Tensor& grad) override;
+    Tensor backward(Tensor& grad) override;
 
     void to_json(json& j) const override;
     void load_json(const json& j) override;

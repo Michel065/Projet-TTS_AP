@@ -41,12 +41,12 @@ namespace CudaConfig {
         return static_cast<int>((n + THREADS_PER_BLOCK_1D - 1) / THREADS_PER_BLOCK_1D);
     }
 
-    inline dim3 calculs_blocks_2D(size_t cols, size_t rows){
+    inline dim3 calculs_blocks_2D(size_t cols, size_t rows,size_t batchs = 1){
         if(cols == 0 || rows == 0){
             Throw_Error("calculs_blocks_2D cols ou rows == 0, impossible");
         }
 
-        return dim3(static_cast<unsigned int>((cols + THREADS_2D - 1) / THREADS_2D),static_cast<unsigned int>((rows + THREADS_2D - 1) / THREADS_2D));
+        return dim3(static_cast<unsigned int>((cols + THREADS_2D - 1) / THREADS_2D),static_cast<unsigned int>((rows + THREADS_2D - 1) / THREADS_2D),batchs);
     }
 }
 

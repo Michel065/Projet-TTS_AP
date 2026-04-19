@@ -21,7 +21,7 @@ Tensor LayerSoftMax::forward(Tensor& input){
     return _last_output;
 }
 
-Tensor LayerSoftMax::backward(const Tensor& grad){
+Tensor LayerSoftMax::backward(Tensor& grad){
     return grad;
 }
 

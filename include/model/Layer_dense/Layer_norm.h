@@ -20,7 +20,7 @@ public:
     void build() override;
     void get_from_model() override;
     Tensor forward(Tensor& input) override;
-    Tensor backward(const Tensor& grad) override;
+    Tensor backward(Tensor& grad) override;
     
     void to_json(json& j) const override;
     void load_json(const json& j) override;

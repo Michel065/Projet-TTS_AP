@@ -51,7 +51,7 @@ public:
     void apply_clip(float b_min, float b_max) override;
     void apply_log() override;
     void calcul_sup(float scalar) override;
-    void transpose() override;
+    void transpose(bool batch=false) override;
     void reshape(Shape format) override;
     void shuffle(const std::vector<int>& indices) override;
      

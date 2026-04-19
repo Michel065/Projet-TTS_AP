@@ -117,7 +117,7 @@ void TensorDataCPU::calcul_sup(float scalar) {
     data_cpu = (data_cpu > scalar);
 }
 
-void TensorDataCPU::transpose() {
+void TensorDataCPU::transpose(bool batch) {
     xt::xarray<float> tmp = xt::transpose(data_cpu);
     data_cpu = tmp;
     recalul_shape();

@@ -82,7 +82,7 @@ public:
     Tensor& clip(float b_min,float b_max);
     Tensor& log();
     Tensor& reshape(Shape format);
-    Tensor& transpose();//pour la propagation
+    Tensor& transpose(bool batch = false);//pour la propagation
 
     //methode qui créer de nouveau Tensor
     Tensor prod_mat(const Tensor& other) const;
@@ -115,12 +115,12 @@ public:
     void set(const std::vector<size_t>& indices, float val);
 
 
+    TensorDataBase* get_data()const; // pas propre provisoire
 private:
     DeviceType device = DeviceType::CPU;
     
     //info lie a TensorDataBase
     TensorDataBase* _data=nullptr;
-    TensorDataBase* get_data()const;
     
     void set_data(TensorDataBase* data);
     void check_data() const;

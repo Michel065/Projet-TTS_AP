@@ -35,7 +35,7 @@ public:
     virtual void apply_clip(float b_min, float b_max) = 0;
     virtual void apply_log() = 0;
     virtual void calcul_sup(float scalar) = 0;
-    virtual void transpose() = 0;
+    virtual void transpose(bool batch=false) = 0;
     virtual void reshape(Shape format) = 0;
     virtual void shuffle(const std::vector<int>& indices) = 0;
 

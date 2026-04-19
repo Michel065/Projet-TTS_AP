@@ -53,7 +53,7 @@ Tensor LayerNormalisation::forward(Tensor& input){
     return input;
 }
 
-Tensor LayerNormalisation::backward(const Tensor& grad){
+Tensor LayerNormalisation::backward(Tensor& grad){
     switch(_type_norm){
         case TypeNormalisation::DEFAULT:
             return calc_defaut_grad(grad);

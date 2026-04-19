@@ -122,13 +122,16 @@ __global__ void sup_kernel(float* a, float scalar, size_t n){
     }
 }
 
-__global__ void transpose_kernel(float* dest, const float* source, int rows, int cols){
+__global__ void transpose_kernel(float* dest, const float* source, int rows, int cols, int batch){
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
+    int b = blockIdx.z;
 
-    if(i < rows && j < cols){
-        dest[j * rows + i] = source[i * cols + j];
-    }
+    if(b >= batch || i >= rows || j >= cols) return;
+
+    const float* src = source + b * rows * cols; // modification pour supporte un batch pour la conv2d
+    float* dst = dest + b * rows * cols;
+    dst[j * rows + i] = src[i * cols + j];
 }
 
 
@@ -325,6 +328,117 @@ __global__ void div_broadcast_axis0_kernel(float* dest, const float* src, int to
 }
 
 
+
+
+
+
+
+
+
+
+
+
+// matmul version broadcast
+__global__ void broadcast_matmul_kernel_shared(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols,bool batch_on_a){
+    __shared__ float As[CudaMatmulConfig::BLOCKSIZE * CudaMatmulConfig::BLOCKSIZE];
+    __shared__ float Bs[CudaMatmulConfig::BLOCKSIZE * CudaMatmulConfig::BLOCKSIZE];
+
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int block_col = blockIdx.x;
+    int block_row = blockIdx.y;
+    int b = blockIdx.z;
+
+    if(b >= batch) return;
+
+    int row = block_row * CudaMatmulConfig::BLOCKSIZE + ty;
+    int col = block_col * CudaMatmulConfig::BLOCKSIZE + tx;
+
+    const float* A_base = source_a + (batch_on_a ? b * rows * trans : 0);
+    const float* B_base = source_b + (batch_on_a ? 0 : b * trans * cols);
+    float* C_base = dest + b * rows * cols;
+
+    float sum = 0.0f;
+    int nb_tiles = (trans + CudaMatmulConfig::BLOCKSIZE - 1) / CudaMatmulConfig::BLOCKSIZE;
+    for(int tile = 0; tile < nb_tiles; tile++){
+        int a_col = tile * CudaMatmulConfig::BLOCKSIZE + tx;
+        int b_row = tile * CudaMatmulConfig::BLOCKSIZE + ty;
+
+        if(row < rows && a_col < trans){
+            As[ty * CudaMatmulConfig::BLOCKSIZE + tx] = A_base[row * trans + a_col];
+        }else{
+            As[ty * CudaMatmulConfig::BLOCKSIZE + tx] = 0.0f;
+        }
+
+        if(b_row < trans && col < cols){
+            Bs[ty * CudaMatmulConfig::BLOCKSIZE + tx] = B_base[b_row * cols + col];
+        }else{
+            Bs[ty * CudaMatmulConfig::BLOCKSIZE + tx] = 0.0f;
+        }
+
+        __syncthreads();
+        for(int k = 0; k < CudaMatmulConfig::BLOCKSIZE; k++){
+            sum += As[ty * CudaMatmulConfig::BLOCKSIZE + k]
+                 * Bs[k * CudaMatmulConfig::BLOCKSIZE + tx];
+        }
+        __syncthreads();
+    }
+    if(row < rows && col < cols){
+        C_base[row * cols + col] = sum;
+    }
+}
+
+//version global avec un batch sur a et b pour un res sur un dernier batch
+__global__ void broadcast_all_matmul_kernel_shared(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols){
+    __shared__ float As[CudaMatmulConfig::BLOCKSIZE * CudaMatmulConfig::BLOCKSIZE];
+    __shared__ float Bs[CudaMatmulConfig::BLOCKSIZE * CudaMatmulConfig::BLOCKSIZE];
+
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+
+    int block_col = blockIdx.x;
+    int block_row = blockIdx.y;
+    int b = blockIdx.z;
+
+    if(b >= batch) return;
+
+    int row = block_row * CudaMatmulConfig::BLOCKSIZE + ty;
+    int col = block_col * CudaMatmulConfig::BLOCKSIZE + tx;
+
+    const float* A_base = source_a + b * rows * trans;
+    const float* B_base = source_b + b * trans * cols;
+    float* C_base = dest + b * rows * cols;
+
+    float sum = 0.0f;
+    int nb_tiles = (trans + CudaMatmulConfig::BLOCKSIZE - 1) / CudaMatmulConfig::BLOCKSIZE;
+
+    for(int tile = 0; tile < nb_tiles; tile++){
+        int a_col = tile * CudaMatmulConfig::BLOCKSIZE + tx;
+        int b_row = tile * CudaMatmulConfig::BLOCKSIZE + ty;
+
+        if(row < rows && a_col < trans){
+            As[ty * CudaMatmulConfig::BLOCKSIZE + tx] = A_base[row * trans + a_col];
+        }else{
+            As[ty * CudaMatmulConfig::BLOCKSIZE + tx] = 0.0f;
+        }
+
+        if(b_row < trans && col < cols){
+            Bs[ty * CudaMatmulConfig::BLOCKSIZE + tx] = B_base[b_row * cols + col];
+        }else{
+            Bs[ty * CudaMatmulConfig::BLOCKSIZE + tx] = 0.0f;
+        }
+
+        __syncthreads();
+        for(int k = 0; k < CudaMatmulConfig::BLOCKSIZE; k++){
+            sum += As[ty * CudaMatmulConfig::BLOCKSIZE + k]
+                 * Bs[k * CudaMatmulConfig::BLOCKSIZE + tx];
+        }
+        __syncthreads();
+    }
+    if(row < rows && col < cols){
+        C_base[row * cols + col] = sum;
+    }
+}
 
 
 

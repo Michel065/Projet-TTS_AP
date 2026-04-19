@@ -81,9 +81,9 @@ Tensor& Tensor::reshape(Shape format){
     return *this;
 }
 
-Tensor& Tensor::transpose(){
+Tensor& Tensor::transpose(bool batch){
     check_data();
-    _data->transpose();
+    _data->transpose(batch);
     return *this;
 }
 

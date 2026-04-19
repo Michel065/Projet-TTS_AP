@@ -29,15 +29,13 @@ Tensor LayerFlatten::forward(Tensor& input){
         total *= _shape_input_batch_save[i];
     }
 
-    Tensor output = input;
-    output.reshape(Shape({batch, total}));
-    return output;
+    input.reshape(Shape({batch, total}));
+    return input;
 }
 
-Tensor LayerFlatten::backward(const Tensor& grad){
-    Tensor output = grad;
-    output.reshape(_shape_input_batch_save);
-    return output;
+Tensor LayerFlatten::backward(Tensor& grad){
+    grad.reshape(_shape_input_batch_save);
+    return grad;
 }
 
 void LayerFlatten::to_json(json& j) const{

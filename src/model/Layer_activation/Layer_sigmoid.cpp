@@ -18,7 +18,7 @@ Tensor LayerSigmoid::forward(Tensor& input){
     return _last_output;
 }
 
-Tensor LayerSigmoid::backward(const Tensor& grad){
+Tensor LayerSigmoid::backward(Tensor& grad){
     return grad * sigmoid_grad();
 }
 

@@ -21,7 +21,7 @@ void gpu_round(float* a, int decimals, size_t n);
 void gpu_clip(float* a, float b_min, float b_max, size_t n);
 void gpu_log(float* a, size_t n);
 void gpu_sup(float* a, float scalar, size_t n);
-void gpu_transpose(float* dest, const float* source, int rows, int cols);
+void gpu_transpose(float* dest, const float* source, int rows, int cols, int batch = 1);
 
 void gpu_matmul(float* dest, const float* source_a, const float* source_b, int rows, int trans, int cols);
 void gpu_shuffle_axis0(float* dest, const float* src, const int* indices, int axis0_size, int stride);
@@ -41,3 +41,10 @@ void gpu_add_broadcast_axis0(float* dest, const float* src, int nbr_broadcast, i
 void gpu_sub_broadcast_axis0(float* dest, const float* src, int nbr_broadcast, int stride);
 void gpu_mul_broadcast_axis0(float* dest, const float* src, int nbr_broadcast, int stride);
 void gpu_div_broadcast_axis0(float* dest, const float* src, int nbr_broadcast, int stride);
+
+
+
+
+// matmul version broadcast
+void gpu_broadcast_matmul(float* dest, const float* source_a, const float* source_b, int batch, int rows, int trans, int cols, bool batch_on_a=false);
+void gpu_broadcast_all_matmul(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols);

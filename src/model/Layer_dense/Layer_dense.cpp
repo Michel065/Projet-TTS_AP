@@ -38,7 +38,7 @@ Tensor LayerDense::forward(Tensor& input){
 }
 
 
-Tensor LayerDense::backward(const Tensor& grad){
+Tensor LayerDense::backward(Tensor& grad){
     Tensor tmp_W=_W;// inon transpose change _W
     
     Tensor grad_W;

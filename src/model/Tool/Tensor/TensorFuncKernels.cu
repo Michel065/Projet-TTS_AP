@@ -116,9 +116,9 @@ void gpu_sup(float* a, float scalar, size_t n){
     cuda_check_all("sup_kernel");
 }
 
-void gpu_transpose(float* dest, const float* source, int rows, int cols){
-    dim3 blocks = CudaConfig::calculs_blocks_2D(cols, rows);
-    transpose_kernel<<<blocks, CudaConfig::threads_per_block_2D()>>>(dest, source, rows, cols);
+void gpu_transpose(float* dest, const float* source, int rows, int cols, int batch){
+    dim3 blocks = CudaConfig::calculs_blocks_2D(cols, rows,batch);
+    transpose_kernel<<<blocks, CudaConfig::threads_per_block_2D()>>>(dest, source, rows, cols, batch);
     cuda_check_all("transpose_kernel");
 }
 
@@ -198,4 +198,23 @@ void gpu_div_broadcast_axis0(float* dest, const float* src, int nbr_broadcast, i
     int blocks = CudaConfig::calculs_blocks_1D(total);
     div_broadcast_axis0_kernel<<<blocks, CudaConfig::THREADS_PER_BLOCK_1D>>>(dest, src, total, stride);
     cuda_check_all("div_broadcast_axis0_kernel");
+}
+
+
+
+
+// matmul version broadcast
+void gpu_broadcast_matmul(float* dest, const float* source_a, const float* source_b, int batch, int rows, int trans, int cols, bool batch_on_a){
+    dim3 blocks = CudaConfig::calculs_blocks_2D(rows, cols, batch);
+
+    broadcast_matmul_kernel_shared<<<blocks, CudaConfig::threads_per_block_2D()>>>(dest, source_a, source_b, batch, rows, trans, cols, batch_on_a);
+    cuda_check_all("matmul_kernel_shared_broadcast_B");
+}
+
+void gpu_broadcast_all_matmul(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols){
+    dim3 blocks = CudaConfig::calculs_blocks_2D(rows, cols, batch);
+
+    broadcast_all_matmul_kernel_shared<<<blocks,CudaConfig::threads_per_block_2D()>>>(dest, source_a, source_b, batch, rows, trans, cols);
+
+    cuda_check_all("broadcast_all_matmul_kernel_shared");
 }

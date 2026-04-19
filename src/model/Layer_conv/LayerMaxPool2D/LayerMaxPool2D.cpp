@@ -57,7 +57,7 @@ Tensor LayerMaxPool2D::forward(Tensor& input){
     return output;
 }
 
-Tensor LayerMaxPool2D::backward(const Tensor& grad){
+Tensor LayerMaxPool2D::backward(Tensor& grad){
     size_t out_H = _shape_output[1];
     size_t out_W = _shape_output[2];
     Tensor grad_out(grad.get_device(),Shape({_last_batch,_channels,_shape_input[1],_shape_input[2]}), false);

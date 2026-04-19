@@ -15,8 +15,6 @@ class TensorDataGPU : public TensorDataBase {
 private:
     CudaData<float> data_gpu;
     size_t get_total_size() const;
-    const CudaData<float>& get_data_gpu() const;
-    CudaData<float>& get_data_gpu();
     xt::xarray<float> copy_to_cpu() const;
     void copy_from_cpu(const xt::xarray<float>& arr);  
     int calcul_stride(int dim_dep) const;
@@ -55,7 +53,7 @@ public:
     void apply_clip(float b_min, float b_max) override;
     void apply_log() override;
     void calcul_sup(float scalar) override;
-    void transpose() override;
+    void transpose(bool batch=false) override;
     void reshape(Shape format) override;
     void shuffle(const std::vector<int>& indices) override;
 
@@ -73,6 +71,10 @@ public:
     // methode pour modifier un element par element
     float get(const std::vector<size_t>& indices) const override;
     void set(const std::vector<size_t>& indices, float val) override;
+
+    // methode pour get de l'exterieur pas propre mais simple pour l'instant
+    const CudaData<float>& get_data_gpu() const;
+    CudaData<float>& get_data_gpu();
 
     friend class Tensor;
 

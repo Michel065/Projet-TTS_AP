@@ -18,7 +18,7 @@ Tensor LayerRelu::forward(Tensor& input){
     return _last_output;
 }
 
-Tensor LayerRelu::backward(const Tensor& grad){
+Tensor LayerRelu::backward(Tensor& grad){
     return grad * relu_grad();
 }
 
