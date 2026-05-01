@@ -11,4 +11,6 @@
 #include "model/Layer_conv/LayerFlatten/LayerFlatten.h"
 #include "model/Layer_conv/LayerMaxPool2D/LayerMaxPool2D.h"
 #include "model/Layer_conv/Layer_norm_image.h"
+
 #include "model/Layer_conv/LayerUpSampling2D/LayerUpSampling2D.h"
+#include "model/Layer_conv/LayerUnflatten/LayerUnflatten.h"

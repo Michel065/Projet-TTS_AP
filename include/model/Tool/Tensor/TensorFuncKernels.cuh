@@ -54,3 +54,6 @@ void gpu_broadcast_all_matmul(float* dest,const float* source_a,const float* sou
 // brod casr de subsur l'axe 1 pour le softmax
 void gpu_sub_broadcast_axis1(float* dest, const float* src, int rows, int cols);
 void gpu_div_broadcast_axis1(float* dest, const float* src, int rows, int cols);
+
+// sum pour moy generique
+float gpu_sum_all(const float* d_input, int total);

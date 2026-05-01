@@ -238,3 +238,30 @@ void gpu_div_broadcast_axis1(float* dest, const float* src, int rows, int cols){
     div_broadcast_axis1_kernel<<<blocks, CudaConfig::THREADS_PER_BLOCK_1D>>>(dest, src, total, cols);
     cuda_check_all("div_broadcast_axis1_kernel");
 }
+
+
+#include "model/Tool/Tensor/Tensor.h" // modif de dernier minute donc pas opti / meme format que les autres
+float gpu_sum_all(const float* d_input, int total){
+    if(total <= 0){
+        return 0.0f;
+    }
+
+    const int threads = CudaConfig::THREADS_PER_BLOCK_1D;
+    int blocks = (total + threads - 1) / threads;
+    blocks = std::min(blocks, 1024);
+
+    Tensor partial(DeviceType::GPU, Shape({(size_t)blocks}));
+    float* d_partial = check_and_get_if_is_gpu(partial);
+
+    size_t shared_mem_size = threads * sizeof(float);
+    sum_all_blocks_kernel<<<blocks, threads, shared_mem_size>>>(d_input,d_partial,total);
+    cuda_check_all("sum_all_blocks_kernel");
+
+    xt::xarray<float> h_partial = partial.get_data()->to_json();
+    float total_sum = 0.0f;
+    for(float v : h_partial){
+        total_sum += v;
+    }
+
+    return total_sum;
+}

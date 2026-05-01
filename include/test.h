@@ -22,4 +22,4 @@ void test_load();
 void test_CNN(DeviceType device = DeviceType::CPU);
 void test_CNN_load(DeviceType device = DeviceType::CPU);
 
-void test_UpSampling(DeviceType device = DeviceType::GPU); // GPU par defaut puisque CPU pas fait
+//void test_UpSampling(DeviceType device = DeviceType::GPU); // GPU par defaut puisque CPU pas fait

@@ -1,3 +1,4 @@
+#pragma once
 #include "model/Callback/Callback.h"
 
 struct EarlyStopConfig {

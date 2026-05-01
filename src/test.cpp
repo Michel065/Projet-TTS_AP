@@ -207,39 +207,3 @@ void test_CNN_load(DeviceType device){
     evaluate_cnn(model,x_test,y_test);
 }
 
-void test_UpSampling(DeviceType device){
-    Tensor X, y, x_test, y_test;
-    Print("Chargement des datas:");
-    get_data_CNN(X, y, x_test,y_test,device);
-    Print("Chargement des datas Fini. X(",X.get_shape()[0],") y(",x_test.get_shape()[0],")");
-
-    Print("construction model.");
-    Model model({.input_shape = Shape({1,28,28}), .eta = 1, .device=device});
-    model.add(new LayerNormalisationImage());
-
-    model.add(new LayerConv2D(2,3));
-    model.add(new LayerRelu());
-    model.add(new LayerMaxPool2D());
- 
-    model.add(new LayerConv2D(16,3));
-    model.add(new LayerRelu());
-    model.add(new LayerMaxPool2D());
-
-    model.add(new LayerFlatten());
-
-    model.add(new LayerDense(10));
-    model.add(new LayerRelu());
-    model.add(new LayerDense(10));
-    model.add(new LayerSoftMax());
-    model.set_loss_function(new LossCrossEntropy());
-    model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
-
-    model.set_affichge_level(1);
-
-    Print("entrainement.");
-    model.fit(X,y,75,128);
-
-    Print("Test:");
-    evaluate_cnn(model,x_test,y_test);
-    model.create_graph_loss_entrainement();
-}

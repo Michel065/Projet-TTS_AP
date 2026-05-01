@@ -56,3 +56,6 @@ __global__ void broadcast_all_matmul_kernel_shared(float* dest,const float* sour
 // brod casr de subsur l'axe 1 pour le softmax
 __global__ void sub_broadcast_axis1_kernel(float* dest, const float* src, int total, int cols);
 __global__ void div_broadcast_axis1_kernel(float* dest, const float* src, int total, int cols);
+
+
+__global__ void sum_all_blocks_kernel(const float* input,float* partial_sums,int n);

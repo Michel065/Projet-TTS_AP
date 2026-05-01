@@ -1,5 +1,7 @@
 #include "model/Layer_conv/LayerUnflatten/LayerUnflatten.h"
 #include "model/Model.h"
+#include "model/Layer_ALL.h"
+
 
 LayerUnflatten::LayerUnflatten() : Layer("UnFlatten") {}
 
@@ -9,17 +11,18 @@ LayerUnflatten::LayerUnflatten(Shape new_shape) : Layer("UnFlatten") {
 
 void LayerUnflatten::get_from_model(){
     /*
-    Je considere qu'il n'y a qu'un flatten par model;
+    Je considere qu'il n'y a qu'un flatten par model; pour l'instant
     */
     if(_model == nullptr)
         return;
         
-    if(_shape_out.len() != 0){
-        return;
+    if(_shape_out.len() == 0){
+        const Layer* flatten = _model->find_layer("Flatten");
+        _shape_out = flatten->get_input_shape();
     }
 
-    const Layer* flatten = _model->find_layer("Flatten");
-    _shape_out = flatten->get_input_shape();
+    _model->add(new LayerDense(_shape_out.size()));
+    _model->add(new LayerRelu());
 }
 
 void LayerUnflatten::build(){

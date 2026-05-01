@@ -1,7 +1,7 @@
 #include "model/Layer_conv/LayerUpSampling2D/LayerUpSampling2D.h"
 #include "model/Model.h"
 
-LayerUpSampling2D::LayerUpSampling2D() : Layer("Conv2D"){}
+LayerUpSampling2D::LayerUpSampling2D() : Layer("UpSampling2D"){}
 
 void LayerUpSampling2D::build(){
     if( _shape_input.len()!=3){   

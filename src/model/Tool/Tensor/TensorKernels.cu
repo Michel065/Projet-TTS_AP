@@ -453,3 +453,30 @@ __global__ void div_broadcast_axis1_kernel(float* dest, const float* src, int to
     int row = id / cols;
     dest[id] /= src[row];
 }
+
+
+__global__ void sum_all_blocks_kernel(const float* input,float* partial_sums,int n){
+    extern __shared__ float shared[];
+    unsigned int tid = threadIdx.x;
+    unsigned int global_id = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int stride = blockDim.x * gridDim.x;
+
+    float sum = 0.0f;
+    for(unsigned int i = global_id; i < n; i += stride){
+        sum += input[i];
+    }
+
+    shared[tid] = sum;
+    __syncthreads();
+
+    for(unsigned int s = blockDim.x / 2; s > 0; s >>= 1){
+        if(tid < s){
+            shared[tid] += shared[tid + s];
+        }
+        __syncthreads();
+    }
+
+    if(tid == 0){
+        partial_sums[blockIdx.x] = shared[0];
+    }
+}

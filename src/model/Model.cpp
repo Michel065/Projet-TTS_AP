@@ -42,7 +42,7 @@ void Model::add(Layer* layer){
 Tensor Model::forward(Tensor& input){
     Tensor tmp = input;
     for(size_t i = 0; i < _layers.size(); ++i){
-		//Print("forward i:",i);
+		//Print("forward i:",i, " name:",_layers[i]->get_name());
         tmp = _layers[i]->forward(tmp);
     }
     return tmp;
@@ -285,9 +285,9 @@ DeviceType  Model::get_device() const{
 
 const Layer* Model::find_layer(std::string name){
 	for(auto& layer : _layers){
-        layer->print();
 		if(layer->get_name() == name){
 			return layer;
 		}
     }
+	return NULL;
 }

@@ -462,6 +462,11 @@ Tensor TensorDataGPU::extraction_section_axe_0(int debut, int fin) const{
 float TensorDataGPU::moyenne() const{ // methode pecifique qui fusione mais uniquemen avec mat 2D
     int total = (int)get_total_size();
 
+    if(shape.len() != 2){ // modif dans le cas ou on a une image en entrée
+        float total_sum = gpu_sum_all(data_gpu.data(), total);
+        return total_sum / total;
+    }
+
     Tensor sum_rows = sum_per_row();              
     Tensor total_sum = sum_rows.sum_axis(0, false);
     if(total_sum.get_shape().len() >1){
