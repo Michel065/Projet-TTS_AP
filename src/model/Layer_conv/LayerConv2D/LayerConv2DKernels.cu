@@ -3,33 +3,30 @@
 
 //SOURCE : https://github.com/piojanu/CUDA-im2col-conv/blob/master/im2col.cu
 
-__global__ void im2col_kernel(float* Dest, const float* Source, size_t Batch, size_t Height, size_t Width, size_t Channel, size_t Kernel, size_t pad, size_t rows, size_t cols){
+__global__ void im2col_kernel(float* Dest,const float* Source,size_t Batch,size_t Height,size_t Width,size_t Channel,size_t Kernel,size_t pad,size_t rows,size_t cols){
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t col_in_batch = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t b   = blockIdx.z;
 
-    if(row >= rows || col_in_batch >= Batch * cols) return;
+    if(b >= Batch || row >= rows || col >= cols) return;
 
-    size_t img_size = Height * Width; // valide car on fait un pad same!!!
-    // calcul du batch
-    size_t b = col_in_batch / img_size;
-    size_t col = col_in_batch % img_size; // calcul col local
-    // corespondance de la case source dans l'origine avant kernel
     size_t out_y = col / Width;
     size_t out_x = col % Width;
 
-    size_t c  = row / (Kernel * Kernel); // on recup le channel
-    size_t kk = row % (Kernel * Kernel); // on retrouve la valeur reel de la pos dans le kernel
-    // on convertie en vrai coords du kernel
+    size_t c  = row / (Kernel * Kernel);
+    size_t kk = row % (Kernel * Kernel);
     size_t ky = kk / Kernel;
     size_t kx = kk % Kernel;
-    // on applique pour trouvé le pixel reel source
+
     int src_y = int(out_y) + int(ky) - int(pad);
     int src_x = int(out_x) + int(kx) - int(pad);
 
+    size_t dest_idx = (b * rows + row) * cols + col;
     if(src_y >= 0 && src_y < (int)Height && src_x >= 0 && src_x < (int)Width){
         size_t src_idx = b * (Channel * Height * Width) + c * (Height * Width) + (size_t)src_y * Width + (size_t)src_x;
-        size_t dest_idx = (b * rows + row) * cols + col;
         Dest[dest_idx] = Source[src_idx];
+    }else{
+        Dest[dest_idx] = 0.0f;
     }
 }
 

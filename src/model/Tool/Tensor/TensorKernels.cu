@@ -161,58 +161,51 @@ __global__ void matmul_kernel(float* dest, const float* source_a, const float* s
 
 
 //version 3 du site https://siboehm.com/articles/22/CUDA-MMM (pourquoi pas la meuilleur des versions proposé, la raison est simple j'ai pas compris)
-__global__ void matmul_kernel_shared(float* dest, const float* source_a, const float* source_b, int rows, int trans, int cols){
+__global__ void matmul_kernel_shared(float* dest,const float* source_a,const float* source_b,int rows,int trans,int cols){
     __shared__ float As[CudaMatmulConfig::BLOCKSIZE * CudaMatmulConfig::BLOCKSIZE];
     __shared__ float Bs[CudaMatmulConfig::BLOCKSIZE * CudaMatmulConfig::BLOCKSIZE];
 
-    int threadCol = threadIdx.x;
-    int threadRow = threadIdx.y;
-    int cCol = blockIdx.x;
-    int cRow = blockIdx.y;
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int block_col = blockIdx.x;
+    int block_row = blockIdx.y;
 
-    int row = cRow * CudaMatmulConfig::BLOCKSIZE + threadRow;
-    int col = cCol * CudaMatmulConfig::BLOCKSIZE + threadCol;
+    int row = block_row * CudaMatmulConfig::BLOCKSIZE + ty;
+    int col = block_col * CudaMatmulConfig::BLOCKSIZE + tx;
 
-    const float* A = source_a;
-    const float* B = source_b;
-    float* C = dest;
+    float sum = 0.0f;
+    int nb_tiles = (trans + CudaMatmulConfig::BLOCKSIZE - 1) / CudaMatmulConfig::BLOCKSIZE;
 
-    A += cRow * CudaMatmulConfig::BLOCKSIZE * trans;
-    B += cCol * CudaMatmulConfig::BLOCKSIZE;
-    C += cRow * CudaMatmulConfig::BLOCKSIZE * cols + cCol * CudaMatmulConfig::BLOCKSIZE;
-
-    float tmp = 0.0f;
-    int nb_blocks = (trans + CudaMatmulConfig::BLOCKSIZE - 1) / CudaMatmulConfig::BLOCKSIZE;
-    for(int bkIdx = 0; bkIdx < nb_blocks; bkIdx++){
-        int a_col = bkIdx * CudaMatmulConfig::BLOCKSIZE + threadCol;
-        int b_row = bkIdx * CudaMatmulConfig::BLOCKSIZE + threadRow;
+    for(int tile = 0; tile < nb_tiles; tile++){
+        int a_col = tile * CudaMatmulConfig::BLOCKSIZE + tx;
+        int b_row = tile * CudaMatmulConfig::BLOCKSIZE + ty;
 
         if(row < rows && a_col < trans){
-            As[threadRow * CudaMatmulConfig::BLOCKSIZE + threadCol] = A[threadRow * trans + threadCol];
+            As[ty * CudaMatmulConfig::BLOCKSIZE + tx] = source_a[row * trans + a_col];
         }else{
-            As[threadRow * CudaMatmulConfig::BLOCKSIZE + threadCol] = 0.0f;
+            As[ty * CudaMatmulConfig::BLOCKSIZE + tx] = 0.0f;
         }
 
         if(b_row < trans && col < cols){
-            Bs[threadRow * CudaMatmulConfig::BLOCKSIZE + threadCol] = B[threadRow * cols + threadCol];
+            Bs[ty * CudaMatmulConfig::BLOCKSIZE + tx] = source_b[b_row * cols + col];
         }else{
-            Bs[threadRow * CudaMatmulConfig::BLOCKSIZE + threadCol] = 0.0f;
+            Bs[ty * CudaMatmulConfig::BLOCKSIZE + tx] = 0.0f;
         }
 
         __syncthreads();
-        for(int dotIdx = 0; dotIdx < CudaMatmulConfig::BLOCKSIZE; dotIdx++){
-            tmp += As[threadRow * CudaMatmulConfig::BLOCKSIZE + dotIdx] * Bs[dotIdx * CudaMatmulConfig::BLOCKSIZE + threadCol];
+        for(int k = 0; k < CudaMatmulConfig::BLOCKSIZE; k++){
+            sum += As[ty * CudaMatmulConfig::BLOCKSIZE + k]
+                 * Bs[k * CudaMatmulConfig::BLOCKSIZE + tx];
         }
         __syncthreads();
-
-        A += CudaMatmulConfig::BLOCKSIZE;
-        B += CudaMatmulConfig::BLOCKSIZE * cols;
     }
 
     if(row < rows && col < cols){
-        C[threadRow * cols + threadCol] = tmp;
+        dest[row * cols + col] = sum;
     }
 }
+
+
 
 
 __global__ void shuffle_axis0_kernel(float* dest, const float* src, const int* indices, int stride, int total){

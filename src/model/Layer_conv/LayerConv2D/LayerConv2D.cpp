@@ -2,7 +2,7 @@
 #include "model/Model.h"
 
 LayerConv2D::LayerConv2D(size_t nb_filters, size_t kernel) : Layer("Conv2D"){
-    if( (int)(kernel / 2) == 0){   
+    if(kernel == 0 || (kernel % 2) == 0){
         Throw_Error("Kernel doit etre impaire");
         return;
     }
@@ -69,7 +69,7 @@ Tensor LayerConv2D::backward(Tensor& grad){
         LayerConv2DGPU::backward(grad_W, grad_b, grad_prec,grad, _last_input, _W,_nb_filters, _kernel, _padding, _shape_input);
     }
     _W -= grad_W * _eta;
-    _b -= grad_b * _eta;
+    _b -= grad_b * _eta;    
     return grad_prec;
 }
 

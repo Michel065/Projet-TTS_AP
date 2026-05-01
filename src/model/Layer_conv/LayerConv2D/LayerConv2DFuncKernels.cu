@@ -1,5 +1,7 @@
 #include "model/Layer_conv/LayerConv2D/LayerConv2DFuncKernels.cuh"
 
+
+
 void gpu_im2col(Tensor& input_col, Tensor& input, size_t Kernel, size_t pad){
     check_is_gpu(input_col);
     check_is_gpu(input);
@@ -13,8 +15,6 @@ void gpu_im2col(Tensor& input_col, Tensor& input, size_t Kernel, size_t pad){
     size_t Height  = shape[2];
     size_t Width   = shape[3];
 
-    dim3 threads = CudaConfig::threads_per_block_2D();
-    dim3 blocks  = CudaConfig::calculs_blocks_2D(Batch * Height * Width, Channel * Kernel * Kernel);
 
     TensorDataGPU* datagpu_input_col = dynamic_cast<TensorDataGPU*>(input_col.get_data());
     float* Dest = datagpu_input_col->get_data_gpu().data();
@@ -22,6 +22,9 @@ void gpu_im2col(Tensor& input_col, Tensor& input, size_t Kernel, size_t pad){
     TensorDataGPU* datagpu_input = dynamic_cast<TensorDataGPU*>(input.get_data());
     float* Source = datagpu_input->get_data_gpu().data();
 
+    dim3 threads = CudaConfig::threads_per_block_2D();
+    dim3 blocks  = CudaConfig::calculs_blocks_2D(Height * Width, Channel * Kernel * Kernel, Batch);
+    
     im2col_kernel<<<blocks, threads>>>(Dest,Source,Batch,Height,Width,Channel,Kernel,pad,Channel * Kernel * Kernel,Height * Width);
     cuda_check_all("gpu_im2col");
 }

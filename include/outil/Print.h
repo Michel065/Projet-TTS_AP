@@ -6,6 +6,8 @@
 #include <sstream>
 #include <string>
 
+inline static bool METHODE_PRINT_ON=true;
+
 enum class Color {
     DEFAULT,
     GREEN,
@@ -40,7 +42,8 @@ inline void Print_Color(Color color, const Args&... args) {
 
 template<typename... Args>
 inline void Print(const Args&... args) {
-    Print_Color(Color::DEFAULT,args...);
+    if(METHODE_PRINT_ON)
+        Print_Color(Color::DEFAULT,args...);
 }
 
 template<typename... Args>

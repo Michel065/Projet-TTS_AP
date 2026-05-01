@@ -205,17 +205,16 @@ void gpu_div_broadcast_axis0(float* dest, const float* src, int nbr_broadcast, i
 
 // matmul version broadcast
 void gpu_broadcast_matmul(float* dest, const float* source_a, const float* source_b, int batch, int rows, int trans, int cols, bool batch_on_a){
-    dim3 blocks = CudaConfig::calculs_blocks_2D(rows, cols, batch);
+    dim3 blocks = CudaConfig::calculs_blocks_2D(cols, rows, batch);
 
     broadcast_matmul_kernel_shared<<<blocks, CudaConfig::threads_per_block_2D()>>>(dest, source_a, source_b, batch, rows, trans, cols, batch_on_a);
     cuda_check_all("matmul_kernel_shared_broadcast_B");
 }
 
 void gpu_broadcast_all_matmul(float* dest,const float* source_a,const float* source_b,int batch,int rows,int trans,int cols){
-    dim3 blocks = CudaConfig::calculs_blocks_2D(rows, cols, batch);
+    dim3 blocks = CudaConfig::calculs_blocks_2D(cols, rows, batch);
 
     broadcast_all_matmul_kernel_shared<<<blocks,CudaConfig::threads_per_block_2D()>>>(dest, source_a, source_b, batch, rows, trans, cols);
-
     cuda_check_all("broadcast_all_matmul_kernel_shared");
 }
 

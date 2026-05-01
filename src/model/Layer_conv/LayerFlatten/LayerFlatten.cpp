@@ -24,16 +24,17 @@ Tensor LayerFlatten::forward(Tensor& input){
 
     size_t batch = _shape_input_batch_save[0];
     size_t total = 1;
-
     for(size_t i = 1; i < (size_t)_shape_input_batch_save.len(); i++){
         total *= _shape_input_batch_save[i];
     }
-
+    //Print("forw:",batch," ",total);
     input.reshape(Shape({batch, total}));
     return input;
 }
 
 Tensor LayerFlatten::backward(Tensor& grad){
+    //Print("back shape:",grad.get_shape().print());
+    //Print("back save shape:",_shape_input_batch_save.print());
     grad.reshape(_shape_input_batch_save);
     return grad;
 }

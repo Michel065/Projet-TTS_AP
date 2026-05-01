@@ -4,6 +4,7 @@ ext_inc/*
 main
 
 .vscode/
+models/
 
 # Prerequisites
 *.d

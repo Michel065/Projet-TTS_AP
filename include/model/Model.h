@@ -37,7 +37,7 @@ public:
 	void run_callback();
 	std::string get_name_model() const;
 	void set_loss_function(Loss* loss_function);
-	void save(std::string path);
+	void save(std::string path,bool aff=true);
 
 	bool early_stop=false;
 private:

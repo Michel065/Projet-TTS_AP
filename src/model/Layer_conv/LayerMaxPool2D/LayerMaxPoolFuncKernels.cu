@@ -47,7 +47,7 @@ void gpu_MaxPool2D_mul2(Tensor& grad_out, Tensor& _mask, Tensor& grad_in, size_t
     size_t in_w = shape_input[2];
     
     dim3 threads = CudaConfig::threads_per_block_2D();
-    dim3 blocks = CudaConfig::calculs_blocks_2D(out_w,channels * out_h, _taille_batch);  
+    dim3 blocks = CudaConfig::calculs_blocks_2D(in_w,channels * in_h, _taille_batch);  
     MaxPool2D_mul2_kernel<<<blocks, threads>>>(d_grad_out,d_mask,d_grad_in,_taille_batch,channels,out_h,out_w,in_h,in_w);
-    cuda_check_all("maxpool2d_forward_kernel");
+    cuda_check_all("maxpool2d_backward_kernel");
 }

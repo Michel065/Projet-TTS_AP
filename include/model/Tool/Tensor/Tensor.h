@@ -151,3 +151,36 @@ inline void check_is_gpu(const Tensor& tens){ // pratique mais pas propre, a cha
         Throw_Error("Tensor non GPU, utilisation de Cuda impossible");
     }
 }
+
+
+inline void debug_check_tensor_non_vide_rec(Tensor& tensor,const Shape& s,std::vector<size_t>& indices,size_t dim,int& nbr){
+    if(dim == (size_t)s.len()){
+        float val = tensor.get(indices);
+        if(val != 0.0f){
+            nbr++;
+        }
+        return;
+    }
+
+    for(size_t i = 0; i < s[dim]; i++){
+        indices[dim] = i;
+        debug_check_tensor_non_vide_rec(tensor, s, indices, dim + 1, nbr);
+    }
+}
+
+inline void debug_check_tensor_non_vide(Tensor& tensor, std::string nom = "Tensor"){
+    Shape s = tensor.get_shape();
+    Print("get_shape ", s.print());
+
+    if(s.len() == 0){
+        Print(nom, " shape vide");
+        return;
+    }
+    std::vector<size_t> indices(s.len(), 0);
+    int nbr = 0;
+    debug_check_tensor_non_vide_rec(tensor, s, indices, 0, nbr);
+    if(nbr != 0)
+        Print(nom, " PAS VIDE !!! nbr valeur : ", nbr);
+    else
+        Print(nom, " VIDE !!!");
+}

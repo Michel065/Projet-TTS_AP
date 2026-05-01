@@ -337,6 +337,7 @@ Tensor TensorDataGPU::matmul(const Tensor& b) const{
         if(trans != b_trans){
             Throw_Error("matmul GPU broadcast impossible : dimensions invalide");
         }
+
         Tensor result(DeviceType::GPU, Shape({(size_t)batch, (size_t)rows, (size_t)cols}));
         auto dres = check_gpu_nc(result);
         gpu_broadcast_matmul(dres->get_data_gpu().data(), A, B, batch, rows, trans, cols, false);

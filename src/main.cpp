@@ -80,10 +80,10 @@ void test_CNN(DeviceType device = DeviceType::CPU){
     */
 
     Print("construction model.");
-    Model model({.input_shape = Shape({1,28,28}), .eta = 5, .device=device});
+    Model model({.input_shape = Shape({1,28,28}), .eta = 1, .device=device});
     model.add(new LayerNormalisationImage());
 
-    model.add(new LayerConv2D(8,3));
+    model.add(new LayerConv2D(2,3));
     model.add(new LayerRelu());
     model.add(new LayerMaxPool2D());
  
@@ -93,17 +93,21 @@ void test_CNN(DeviceType device = DeviceType::CPU){
 
     model.add(new LayerFlatten());
 
-    model.add(new LayerDense(64));
+    model.add(new LayerDense(10));
     model.add(new LayerRelu());
     model.add(new LayerDense(10));
     model.add(new LayerSoftMax());
     model.set_loss_function(new LossCrossEntropy());
     model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
 
-    //model.set_affichge_level(1);
+    model.set_affichge_level(1);
+
+    // var utiliser pour debug pour cacher tous les prints qui me servent a debug
+    
+    //model.print();
 
     Print("entrainement.");
-    model.fit(X,y,150,128);
+    model.fit(X,y,75,128);
 
     Print("Test:");
     evaluate_cnn(model,x_test,y_test);
@@ -129,12 +133,10 @@ void test_CNN(DeviceType device = DeviceType::CPU){
         }
         Print("Image ", i, " pred:", p_class, " vrai:", r_class);
         //print_exemeple_image(x_test,i);
-    }
-    */
+    }*/
 
-    //model.print();
     model.create_graph_loss_entrainement();
-    model.save("./models/model_cnn.json");
+    model.save("./models/model_cnn.json",false);
     
 }
 
@@ -162,31 +164,6 @@ void test_CNN_load(DeviceType device = DeviceType::CPU){
 int main() {
     test_CNN(DeviceType::GPU);
     //test_CNN_load(DeviceType::GPU);
-    /*
-    Tensor X, y, x_test, y_test;
-    Print("Chargement des datas:"); // je met un print car pas otpi tres long.
-    get_data_CNN(X, y, x_test,y_test,DeviceType::GPU);
-
-    int nbr_image_train=5;
-    int debut = 10;
-    X=X.extraction_section_axe_0(debut,debut+nbr_image_train);
-    y=y.extraction_section_axe_0(debut,debut+nbr_image_train);
-    Print("erreur");
-    x_test=x_test.extraction_section_axe_0(debut,debut+nbr_image_train/2);
-    y_test=y_test.extraction_section_axe_0(debut,debut+nbr_image_train/2);
-
-    for(size_t i = 0; i < x_test.get_shape()[0]; i++){
-        size_t r_class = 0;
-        for(size_t j = 0; j < 10; j++){
-            if(y_test.get({i,j}) == 1.0f){
-                r_class = j;
-                break;
-            }
-        }
-        Print("_______________________________________________");
-        Print("Image ", i, " vrai:", r_class);
-        print_exemeple_image(x_test,i);
-    }
-    */   
+    
     return 0;
 }

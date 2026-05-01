@@ -15,10 +15,8 @@ void LayerConv2DGPU::forward(Tensor& output, Tensor& input,
     Tensor input_col(DeviceType::GPU, Shape({batch, channel * kernel * kernel, height * width}), false);
 
     gpu_im2col(input_col, input, kernel, pad);
-    output = std::move(_W.prod_mat(input_col));
-
+    output = (_W.prod_mat(input_col));
     gpu_add_bias_conv(output, _b, batch, nb_filters, height, width);
-
     //on rebascule sur le format d'origine {batch, nb_filters, height, width}
     output.reshape(output_ori);
 }
@@ -35,6 +33,8 @@ void LayerConv2DGPU::backward(Tensor& grad_W, Tensor& grad_b, Tensor& grad_outpu
     size_t height  = shape_input[1];
     size_t width   = shape_input[2];
 
+    //Print("_W :",_W);
+
     size_t rows = channel * kernel * kernel;
     size_t cols = height * width;
 
@@ -43,10 +43,11 @@ void LayerConv2DGPU::backward(Tensor& grad_W, Tensor& grad_b, Tensor& grad_outpu
     Tensor last_input_col(DeviceType::GPU, Shape({batch, rows, cols}), false);
     gpu_im2col(last_input_col, last_input, kernel, pad);
 
-    Tensor last_input_col_T = std::move(last_input_col);
+    Tensor last_input_col_T = (last_input_col);
     last_input_col_T.transpose(true);
 
     gpu_sum_bias_conv(grad_b, grad_input, batch, nb_filters, height, width);// grad b
+    grad_b /= (float)(batch * height * width); // on moyennesur le nbr de val qui contribue au calculs
 
     Tensor grad_W_batch = grad_input.prod_mat(last_input_col_T);
     gpu_sum_batch(grad_W, grad_W_batch, batch, nb_filters, rows);

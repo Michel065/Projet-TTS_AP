@@ -133,10 +133,18 @@ void Model::fit(Tensor input,Tensor y,int epochs,int batch_size,bool shuffle){
 			loss_tmp = _loss_function->calcul_loss(Y_pred, y_split[id_it]);
 			loss_moy += loss_tmp;
 			backward(_loss_function->calcul_grad(Y_pred, y_split[id_it]));
-			
+
+			//debug
+			/*if(id_it>50)
+				return ;
+			*/
 			//prediction du temps calculs
 			float temps_it = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - debut_it).count();
 			temps_restant = update_time_estimation(temps_it, epochs * nbr_split, i * nbr_split + id_it + 1);
+			
+			if(epochs % 10 == 9){// sauvegarde de temps en temps
+				save("./models/"+_model_name+".json",false);
+			}
 
 			if(_type_aff == 1) 
 				Print_over("Epochs : ",i+1,"/",epochs," iteration : ",id_it+1,"/",nbr_split," loss train : ",round_esti(loss_moy/(id_it+1))," temps restant (fin du train): ",std::round(temps_restant),"s");
@@ -231,7 +239,7 @@ const std::vector<Layer*>& Model::get_layers() const {
 	return _layers;
 }
 
-void Model::save(std::string path) {
+void Model::save(std::string path,bool aff) {
     json j = this;
 
     std::ofstream file(path);
@@ -240,7 +248,8 @@ void Model::save(std::string path) {
 
     file << j.dump();
     file.close();
-	Print("Modele sauvegarde path:",path);
+	if(aff)
+		Print("Modele sauvegarde path:",path);
 }
 
 void Model::reformat(ModelConfig model_config){
