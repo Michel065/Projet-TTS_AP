@@ -152,6 +152,15 @@ inline void check_is_gpu(const Tensor& tens){ // pratique mais pas propre, a cha
     }
 }
 
+inline float* check_and_get_if_is_gpu(const Tensor& tens){ // pratique mais pas propre, a changer si j'ai le temps
+    if(!tens.is_gpu()){
+        Throw_Error("Tensor non GPU, utilisation de Cuda impossible");
+    }
+    TensorDataGPU* data = dynamic_cast<TensorDataGPU*>(tens.get_data());
+    float* data_float = data->get_data_gpu().data();
+    return data_float;
+}
+
 
 inline void debug_check_tensor_non_vide_rec(Tensor& tensor,const Shape& s,std::vector<size_t>& indices,size_t dim,int& nbr){
     if(dim == (size_t)s.len()){

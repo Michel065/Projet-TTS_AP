@@ -137,7 +137,6 @@ void test_CNN(DeviceType device = DeviceType::CPU){
 
     model.create_graph_loss_entrainement();
     model.save("./models/model_cnn.json",false);
-    
 }
 
 void test_CNN_load(DeviceType device = DeviceType::CPU){
