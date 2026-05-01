@@ -13,7 +13,7 @@ Shape Layer::get_output_shape(){
     return _shape_output;
 }
 
-Shape Layer::get_input_shape(){
+Shape Layer::get_input_shape() const{
     return _shape_input;
 }
 

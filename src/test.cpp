@@ -1,137 +1,4 @@
-
-
 #include "test.h"
-
-void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test){
-    X = Tensor(DeviceType::CPU,{
-        {-1.0f, -1.0f},
-        {-1.2f, -0.8f},
-        {-0.8f, -1.1f},
-        {-1.1f, -1.3f},
-
-        { 1.0f,  1.0f},
-        { 1.2f,  0.9f},
-        { 0.8f,  1.1f},
-        { 1.1f,  1.3f}
-    });
-
-    y = Tensor(DeviceType::CPU,{
-        {1.0f, 0.0f},
-        {1.0f, 0.0f},
-        {1.0f, 0.0f},
-        {1.0f, 0.0f},
-
-        {0.0f, 1.0f},
-        {0.0f, 1.0f},
-        {0.0f, 1.0f},
-        {0.0f, 1.0f}
-    });
-
-    x_test = Tensor(DeviceType::CPU,{
-        { 0.9f,  1.0f},
-        {-0.9f, -1.0f}
-    });
-}
-
-void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n,DeviceType device){
-    X = Tensor(device,Shape({n, 2}));
-    y = Tensor(device,Shape({n, 1}));
-
-    float r1 = 1.0f;
-    float r2 = 2.0f;
-    size_t n_in = n / 2;
-    size_t idx = 0;
-
-    auto rand_float = [](float a, float b){
-        return a + ((float)rand() / (float)RAND_MAX) * (b - a);
-    };
-
-    while(idx < n_in){
-        float x = rand_float(-3.0f, 3.0f);
-        float yy = rand_float(-3.0f, 3.0f);
-        float dist = std::sqrt(x * x + yy * yy);
-
-        if(dist >= r1 && dist <= r2){
-            X.set({idx, 0}, x);
-            X.set({idx, 1}, yy);
-            y.set({idx, 0}, 1.0f);
-            idx++;
-        }
-    }
-
-    while(idx < n){
-        float x = rand_float(-3.0f, 3.0f);
-        float yy = rand_float(-3.0f, 3.0f);
-        float dist = std::sqrt(x * x + yy * yy);
-
-        if(dist < r1 || dist > r2){
-            X.set({idx, 0}, x);
-            X.set({idx, 1}, yy);
-            y.set({idx, 0}, 0.0f);
-            idx++;
-        }
-    }
-
-    x_test = Tensor(device,{
-        {1.5f, 0.0f},
-        {1.2f, 0.8f},
-        {0.3f, 0.3f},
-        {3.0f, 0.0f},
-        {2.5f, 1.5f}
-    });
-}
-
-
-
-
-// recup d'internet et modifié
-// modif methode, ca marché pas donc recup fichier forat cvv et conv xr array puis conv tensor.
-void load_mnist_csv(Tensor& X, Tensor& y, const std::string& path,DeviceType device){
-    std::ifstream file(path);
-    if(!file.is_open()){
-        throw std::runtime_error("Impossible d'ouvrir le fichier : " + path);
-    }
-    std::string line;
-    if(!std::getline(file, line)){
-        throw std::runtime_error("Fichier vide : " + path);
-    }
-    std::vector<float> images_data;
-    std::vector<float> labels_data;
-    size_t nb_samples = 0;
-    while(std::getline(file, line)){
-        if(line.empty()) continue;
-        std::stringstream ss(line);
-        std::string cell;
-        if(!std::getline(ss, cell, ',')){
-            throw std::runtime_error("Ligne invalide dans : " + path);
-        }
-        int label = std::stoi(cell);
-        if(label < 0 || label > 9){
-            throw std::runtime_error("Label invalide dans : " + path);
-        }
-        for(int k = 0; k < 10; k++){
-            labels_data.push_back(k == label ? 1.0f : 0.0f); // conv en onehot
-        }
-        size_t pixel_count = 0;
-        while(std::getline(ss, cell, ',')){
-            float v = std::stof(cell);
-            images_data.push_back(v);
-            pixel_count++;
-        }
-        if(pixel_count != 28 * 28){
-            Throw_Error("Nombre de pixels invalide,",pixel_count);
-        }
-        nb_samples++;
-    }
-    X = Tensor(device,xt::adapt(images_data, {nb_samples, size_t(1), size_t(28), size_t(28)}));
-    y = Tensor(device,xt::adapt(labels_data, {nb_samples, size_t(10)}));
-}
-
-void get_data_CNN(Tensor& X_train,Tensor& y_train,Tensor& X_test,Tensor& y_test,DeviceType device){
-    load_mnist_csv(X_train, y_train, "./data/mnist/mnist_train.csv", device);
-    load_mnist_csv(X_test, y_test, "./data/mnist/mnist_test.csv", device);
-}
-
 
 void print_exemeple_image(Tensor& images,size_t index){
     //on suppose toujours le meme format nbr images, channels , h , w
@@ -230,4 +97,149 @@ void evaluate_cnn(Model& model, Tensor X, Tensor y){
         }
         Print(ligne);
     }
+}
+
+void test_non_lineaire(DeviceType device){
+    Tensor X, y, x_test;
+    get_data_non_lineaire(X, y, x_test,2000,device);
+    size_t nbr_neur_in = (X.get_shape()[1]);
+    int nbr_neur_out = y.get_shape()[1];
+
+    Print("construction model.");
+    Model model({.input_shape = Shape({nbr_neur_in}), .eta = 2 ,.device=device});
+    model.add(new LayerNormalisation({-3,-3},{3,3}));// c le min et le max a la main
+    model.add(new LayerDense(20));
+    model.add(new LayerRelu());
+    model.add(new LayerDense(20));
+    model.add(new LayerRelu());
+    model.add(new LayerDense(5));
+    model.add(new LayerRelu());
+    model.add(new LayerDense(nbr_neur_out));
+    model.add(new LayerSigmoid());
+    model.set_loss_function(new LossBinaryCrossEntropy());
+
+    model.add_callback(new CallbackEarlyStopLoss({.patience = 15}));
+
+    //model.set_affichge_level(2);
+
+    Print("entrainement.");
+    model.fit(X,y,1500,256);
+    
+    Print("Test:");
+    Tensor y_test = model.predict(x_test).round(2)*100;
+    Print("Prediction :",y_test);
+
+    //model.print();
+    model.create_graph_loss_entrainement();
+    //model.save("./models/model.json");
+    
+}
+
+void test_load(){
+    Tensor X, y, x_test;
+    get_data_non_lineaire(X, y, x_test,1000);
+
+    Model model("./models/model.json");
+    model.set_loss_function(new LossBinaryCrossEntropy());
+    
+
+    Print("Test:");
+    Tensor y_test = model.predict(x_test).round(2)*100;
+    
+    Print("Prediction :",y_test);
+}
+
+void test_CNN(DeviceType device){
+    Tensor X, y, x_test, y_test;
+    Print("Chargement des datas:"); // je met un print car pas otpi tres long.
+    get_data_CNN(X, y, x_test,y_test,device);
+    Print("Chargement des datas Fini. X(",X.get_shape()[0],") y(",x_test.get_shape()[0],")");
+
+    Print("construction model.");
+    Model model({.input_shape = Shape({1,28,28}), .eta = 1, .device=device});
+    model.add(new LayerNormalisationImage());
+
+    model.add(new LayerConv2D(2,3));
+    model.add(new LayerRelu());
+    model.add(new LayerMaxPool2D());
+ 
+    model.add(new LayerConv2D(16,3));
+    model.add(new LayerRelu());
+    model.add(new LayerMaxPool2D());
+
+    model.add(new LayerFlatten());
+
+    model.add(new LayerDense(10));
+    model.add(new LayerRelu());
+    model.add(new LayerDense(10));
+    model.add(new LayerSoftMax());
+    model.set_loss_function(new LossCrossEntropy());
+    model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
+
+    model.set_affichge_level(1);
+
+    Print("entrainement.");
+    model.fit(X,y,75,128);
+
+    Print("Test:");
+    evaluate_cnn(model,x_test,y_test);
+    model.create_graph_loss_entrainement();
+    //model.save("./models/model_cnn.json",false);
+}
+
+void test_CNN_load(DeviceType device){
+    Tensor X, y, x_test, y_test;
+    Print("Chargement des datas:");
+    get_data_CNN(X, y, x_test,y_test,device);
+    Print("Chargement des datas Fini. X(",X.get_shape()[0],") y(",x_test.get_shape()[0],")");
+    
+    int nbr_image_train=200;
+    x_test=x_test.extraction_section_axe_0(0,nbr_image_train);
+    y_test=y_test.extraction_section_axe_0(0,nbr_image_train);
+    Print("reduce X(",X.get_shape()[0],") y(",x_test.get_shape()[0],")");
+    
+    Print("construction model.");
+    Model model("./models/model_cnn.json");
+    // ajout du loss
+    model.set_loss_function(new LossCrossEntropy());
+    
+    Print("Test:");
+    evaluate_cnn(model,x_test,y_test);
+}
+
+void test_UpSampling(DeviceType device){
+    Tensor X, y, x_test, y_test;
+    Print("Chargement des datas:");
+    get_data_CNN(X, y, x_test,y_test,device);
+    Print("Chargement des datas Fini. X(",X.get_shape()[0],") y(",x_test.get_shape()[0],")");
+
+    Print("construction model.");
+    Model model({.input_shape = Shape({1,28,28}), .eta = 1, .device=device});
+    model.add(new LayerNormalisationImage());
+
+    model.add(new LayerConv2D(2,3));
+    model.add(new LayerRelu());
+    model.add(new LayerMaxPool2D());
+ 
+    model.add(new LayerConv2D(16,3));
+    model.add(new LayerRelu());
+    model.add(new LayerMaxPool2D());
+
+    model.add(new LayerFlatten());
+
+    model.add(new LayerDense(10));
+    model.add(new LayerRelu());
+    model.add(new LayerDense(10));
+    model.add(new LayerSoftMax());
+    model.set_loss_function(new LossCrossEntropy());
+    model.add_callback(new CallbackEarlyStopLoss({.patience = 5}));
+
+    model.set_affichge_level(1);
+
+    Print("entrainement.");
+    model.fit(X,y,75,128);
+
+    Print("Test:");
+    evaluate_cnn(model,x_test,y_test);
+    model.create_graph_loss_entrainement();
 }

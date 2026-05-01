@@ -281,3 +281,13 @@ void Model::add_from_save(Layer* layer){
 DeviceType  Model::get_device() const{
 	return _device;
 }
+
+
+const Layer* Model::find_layer(std::string name){
+	for(auto& layer : _layers){
+        layer->print();
+		if(layer->get_name() == name){
+			return layer;
+		}
+    }
+}

@@ -15,7 +15,7 @@ public:
     void set_output_shape(Shape shape_output);
     
     Shape get_output_shape();
-    Shape get_input_shape();
+    Shape get_input_shape() const;
 
     void set_model(Model* model_global);
     virtual void get_from_model() {};

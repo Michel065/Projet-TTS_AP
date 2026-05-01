@@ -39,6 +39,8 @@ public:
 	void set_loss_function(Loss* loss_function);
 	void save(std::string path,bool aff=true);
 
+	const Layer* find_layer(std::string name);
+
 	bool early_stop=false;
 private:
     std::vector<Layer*> _layers;
