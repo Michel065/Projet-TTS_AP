@@ -129,3 +129,51 @@ void get_data_CNN(Tensor& X_train,Tensor& y_train,Tensor& X_test,Tensor& y_test,
     load_mnist_csv(X_train, y_train, "./data/mnist/mnist_train.csv", device);
     load_mnist_csv(X_test, y_test, "./data/mnist/mnist_test.csv", device);
 }
+
+
+
+// pour le test de l'auto encoder
+void load_Cifar_10_csv_X(Tensor& X, const std::string& path, DeviceType device){
+    std::ifstream file(path);
+    if(!file.is_open()){
+        throw std::runtime_error("Impossible d'ouvrir le fichier : " + path);
+    }
+
+    std::string line;
+    if(!std::getline(file, line)){
+        throw std::runtime_error("Fichier vide : " + path);
+    }
+
+    std::vector<float> images_data;
+    size_t nb_samples = 0;
+
+    while(std::getline(file, line)){
+        if(line.empty()) continue;
+
+        std::stringstream ss(line);
+        std::string cell;
+        std::vector<std::string> cells;
+
+        while(std::getline(ss, cell, ',')){
+            cells.push_back(cell);
+        }
+
+        if(cells.size() != 3072 && cells.size() != 3073){
+            Throw_Error("Ligne CIFAR invalide, colonnes=", cells.size(), " path=", path);
+        }
+
+        for(size_t i = 0; i < 32 * 32 * 3; i++){
+            images_data.push_back(std::stof(cells[i]));
+        }
+
+        nb_samples++;
+    }
+    
+    Print("Conversion cpu gpu data");
+    X = Tensor(device,xt::adapt(images_data, {nb_samples, size_t(3), size_t(32), size_t(32)}));
+}
+
+void get_data_Cifar_10(Tensor& X_train,Tensor& X_test,DeviceType device){
+    load_Cifar_10_csv_X(X_train, "./data/cifar-10/CIFAR-10-train.csv", device);
+    load_Cifar_10_csv_X(X_test, "./data/cifar-10/CIFAR-10-test.csv", device);
+}

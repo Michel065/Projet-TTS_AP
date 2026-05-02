@@ -1,6 +1,6 @@
 #include "test.h"
 
-void print_exemeple_image(Tensor& images,size_t index){
+void print_exemeple_image(Tensor& images,size_t index,bool norm){
     //on suppose toujours le meme format nbr images, channels , h , w
     size_t C = images.get_shape()[1];
     size_t H = images.get_shape()[2];
@@ -12,7 +12,7 @@ void print_exemeple_image(Tensor& images,size_t index){
             std::string ligne = "";
             for(size_t w = 0; w < W; w++){
                 float val = images.get({index, c, h, w});
-                if(val >1){val/=255.0;}
+                if(norm && val > 1){val/=255.0;}
 
                 // on fait une sorte de degradé pour l'instant
                 if(val > 0.75f) ligne += "#";
@@ -207,3 +207,36 @@ void test_CNN_load(DeviceType device){
     evaluate_cnn(model,x_test,y_test);
 }
 
+
+void print_exemple_images_bi(Tensor& images1, Tensor& images2, size_t index, bool norm){
+    size_t C = images1.get_shape()[1];
+    size_t H = images1.get_shape()[2];
+    size_t W = images1.get_shape()[3];
+
+    for(size_t c = 0; c < C; c++){
+        Print("Channel ", c);
+        for(size_t h = 0; h < H; h++){
+            std::string ligne1 = "";
+            std::string ligne2 = "";
+            for(size_t w = 0; w < W; w++){
+                float val1 = images1.get({index, c, h, w});
+                if(norm && val1 > 1) val1 /= 255.0f;
+
+                if(val1 > 0.75f) ligne1 += "#";
+                else if(val1 > 0.5f) ligne1 += "O";
+                else if(val1 > 0.25f) ligne1 += ".";
+                else ligne1 += " ";
+
+                float val2 = images2.get({index, c, h, w});
+                if(norm && val2 > 1) val2 /= 255.0f;
+
+                if(val2 > 0.75f) ligne2 += "#";
+                else if(val2 > 0.5f) ligne2 += "O";
+                else if(val2 > 0.25f) ligne2 += ".";
+                else ligne2 += " ";
+            }
+            Print(ligne1 + "     |     " + ligne2);
+        }
+        Print("\n");
+    }
+}

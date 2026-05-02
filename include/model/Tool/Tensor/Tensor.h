@@ -193,3 +193,52 @@ inline void debug_check_tensor_non_vide(Tensor& tensor, std::string nom = "Tenso
     else
         Print(nom, " VIDE !!!");
 }
+
+
+
+// nouvelle methdoe derivé pour debug  toujorus plus:
+inline void debug_check_tensor_non_vide_batch_rec(Tensor& tensor,const Shape& s,std::vector<size_t>& indices,size_t dim,size_t batch_id,int& nbr){
+    if(dim == (size_t)s.len()){
+        float val = tensor.get(indices);
+        if(val != 0.0f){
+            nbr++;
+        }
+        return;
+    }
+
+    if(dim == 0){
+        indices[0] = batch_id;
+        debug_check_tensor_non_vide_batch_rec(tensor, s, indices, dim + 1, batch_id, nbr);
+        return;
+    }
+
+    for(size_t i = 0; i < s[dim]; i++){
+        indices[dim] = i;
+        debug_check_tensor_non_vide_batch_rec(tensor, s, indices, dim + 1, batch_id, nbr);
+    }
+}
+
+inline void debug_check_tensor_non_vide_batch(Tensor& tensor,size_t batch_id,std::string nom = "Tensor"){
+    Shape s = tensor.get_shape();
+    Print("get_shape ", s.print());
+
+    if(s.len() == 0){
+        Print(nom, " shape vide");
+        return;
+    }
+
+    if(batch_id >= s[0]){
+        Print(nom, " batch_id invalide");
+        return;
+    }
+
+    std::vector<size_t> indices(s.len(), 0);
+    int nbr = 0;
+
+    debug_check_tensor_non_vide_batch_rec(tensor, s, indices, 0, batch_id, nbr);
+
+    if(nbr != 0)
+        Print(nom, " batch ", batch_id, " PAS VIDE !!! nbr valeur : ", nbr);
+    else
+        Print(nom, " batch ", batch_id, " VIDE !!!");
+}

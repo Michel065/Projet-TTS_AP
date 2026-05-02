@@ -13,7 +13,7 @@
 
 
 
-void print_exemeple_image(Tensor& images,size_t index);
+void print_exemeple_image(Tensor& images,size_t index,bool norm = false);
 void evaluate_cnn(Model& model,Tensor X, Tensor y);
 
 
@@ -22,4 +22,5 @@ void test_load();
 void test_CNN(DeviceType device = DeviceType::CPU);
 void test_CNN_load(DeviceType device = DeviceType::CPU);
 
+void print_exemple_images_bi(Tensor& images1, Tensor& images2, size_t index,bool norm = false);
 //void test_UpSampling(DeviceType device = DeviceType::GPU); // GPU par defaut puisque CPU pas fait

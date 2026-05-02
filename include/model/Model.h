@@ -24,7 +24,7 @@ public:
 	
 	void add(Layer* layer);
 	Tensor forward(Tensor& input);
-	void backward(Tensor grad);
+	Tensor backward(Tensor grad);
 	Tensor predict(Tensor input);
 	void fit(Tensor input,Tensor y,int epochs=50,int batch_size=64,bool shuffle=true);
 	void create_graph_loss_entrainement(bool full=false);

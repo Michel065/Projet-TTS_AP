@@ -21,6 +21,10 @@
 #include <xtensor/xview.hpp>
 #include <chrono>
 
+//pour teste auto encoder avec images simple puisque probleme mnist
+#include <filesystem>
+//#include <opencv2/opencv.hpp>
+
 
 
 void get_data_lineaire(Tensor& X, Tensor& y, Tensor& x_test);
@@ -29,4 +33,6 @@ void get_data_non_lineaire(Tensor& X, Tensor& y, Tensor& x_test,size_t n=500,Dev
 void load_mnist_csv(Tensor& X, Tensor& y, const std::string& path,DeviceType device= DeviceType::CPU);
 void get_data_CNN(Tensor& X_train,Tensor& y_train,Tensor& X_test,Tensor& y_test,DeviceType device = DeviceType::CPU);
 
-
+// pour plus de test:
+void load_Cifar_10_csv_X(Tensor& X, const std::string& path, DeviceType device);
+void get_data_Cifar_10(Tensor& X_train,Tensor& X_test,DeviceType device);

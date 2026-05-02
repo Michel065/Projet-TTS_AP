@@ -21,8 +21,6 @@ void LayerUnflatten::get_from_model(){
         _shape_out = flatten->get_input_shape();
     }
 
-    _model->add(new LayerDense(_shape_out.size()));
-    _model->add(new LayerRelu());
 }
 
 void LayerUnflatten::build(){
@@ -35,7 +33,11 @@ void LayerUnflatten::build(){
         Throw_Error("Shape de sortie invalide "+_shape_out.print());
         return;
     }
-
+    int nbr = _shape_out.size();
+    _model->add(new LayerDense(nbr));
+    _model->add(new LayerRelu());
+    
+    _shape_input[0] = _shape_out.size();
     set_output_shape(_shape_out);
     print_couche_msg("Build termine.", Color::GREEN);
 }

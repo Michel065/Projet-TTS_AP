@@ -48,7 +48,7 @@ Tensor Model::forward(Tensor& input){
     return tmp;
 }
 
-void Model::backward(Tensor grad){
+Tensor Model::backward(Tensor grad){
 	Tensor tmp = grad;
 	//int i=0;
 	for (auto it = _layers.rbegin(); it != _layers.rend(); ++it) {
@@ -56,6 +56,7 @@ void Model::backward(Tensor grad){
 		//i++;
 		tmp = (*it)->backward(tmp);
 	}
+	return tmp;
 }
 
 float Model::update_time_estimation(float temps_it, int total_it, int actuel_it) {
@@ -129,7 +130,14 @@ void Model::fit(Tensor input,Tensor y,int epochs,int batch_size,bool shuffle){
 		for(int id_it=0; id_it<nbr_split; id_it++){
 			auto debut_it = std::chrono::high_resolution_clock::now();
 			
+    		//Print("Dans le X source du fit id_it:", id_it);
+			//debug_check_tensor_non_vide_batch(input_split[id_it], 0, "X source");
+
 			Y_pred = forward(input_split[id_it]);
+
+			//Print("Dans le Y pred du fit id_it:", id_it);
+			//debug_check_tensor_non_vide_batch(Y_pred, 0, "Y_pred");
+
 			loss_tmp = _loss_function->calcul_loss(Y_pred, y_split[id_it]);
 			loss_moy += loss_tmp;
 			backward(_loss_function->calcul_grad(Y_pred, y_split[id_it]));
