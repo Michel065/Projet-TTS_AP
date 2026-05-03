@@ -19,6 +19,7 @@ struct ModelConfig {
 
 class Model {
 public:
+	Model(){}
 	Model(std::string path);
 	Model(ModelConfig model_config);
 	

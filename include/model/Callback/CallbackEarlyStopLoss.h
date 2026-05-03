@@ -11,6 +11,9 @@ public:
     CallbackEarlyStopLoss(EarlyStopConfig config): epsilon(config.epsilon), patience(config.patience) {}
     void on_epoch_end() override;
 
+    std::vector<float>& get_losss();
+    void stop_trainning();
+
 private:
     float epsilon;
     int patience;

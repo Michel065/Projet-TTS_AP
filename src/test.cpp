@@ -240,3 +240,127 @@ void print_exemple_images_bi(Tensor& images1, Tensor& images2, size_t index, boo
         Print("\n");
     }
 }
+
+void test_AutoEncoder_Cifar(DeviceType device){
+    Tensor X, x_test;
+
+    Print("Chargement des datas:");
+    get_data_Cifar_10(X, x_test, device);
+
+    X /= 255.0f;
+
+    int nbr_val = 1;
+    x_test = x_test.extraction_section_axe_0(0, nbr_val);
+    x_test /= 255.0f;
+
+    Print("Chargement des datas Fini. X(", X.get_shape()[0], ") test(", x_test.get_shape()[0], ")");
+
+    Print("construction encoder.");
+    Model* encoder = new Model({.input_shape = Shape({3,32,32}), .eta = 1, .device=device});
+
+    encoder->add(new LayerConv2D(32,3));
+    encoder->add(new LayerRelu());
+    encoder->add(new LayerMaxPool2D());
+
+    encoder->add(new LayerConv2D(16,3));
+    encoder->add(new LayerRelu());
+    encoder->add(new LayerMaxPool2D());
+
+    encoder->add(new LayerFlatten());
+
+    encoder->add(new LayerDense(256));
+    encoder->add(new LayerRelu());
+
+    Print("construction decoder.");
+    Model* decoder = new Model({.input_shape = Shape({256}), .eta = 0.05, .device=device});
+
+    decoder->add(new LayerDense(16 * 8 * 8));
+    decoder->add(new LayerRelu());
+
+    decoder->add(new LayerUnflatten(Shape({16,8,8})));
+
+    decoder->add(new LayerUpSampling2D());
+    decoder->add(new LayerConv2D(16,3));
+    decoder->add(new LayerRelu());
+
+    decoder->add(new LayerUpSampling2D());
+    decoder->add(new LayerConv2D(32,3));
+    decoder->add(new LayerRelu());
+
+    decoder->add(new LayerConv2D(3,3));
+    decoder->add(new LayerSigmoid());
+
+    encoder->print();
+    decoder->print();
+
+    Auto_Encoder ae(encoder, decoder);
+    ae.set_loss_function(new LossMSE());
+
+    Print("entrainement.");
+    ae.fit(X, 1, 128);
+
+    Tensor Y_test_pred = ae.predict(x_test);
+    debug_check_tensor_non_vide(Y_test_pred);
+    for(size_t i = 0; i < (size_t)nbr_val; i++){
+        debug_check_tensor_non_vide_batch(Y_test_pred, i, "Y_pred");
+        debug_check_tensor_non_vide_batch(x_test, i, "Y_reel");
+        print_exemple_images_bi(x_test, Y_test_pred, i, false);
+    }
+}
+
+
+void test_AutoEncoder_Cifar_v2(DeviceType device){
+    Tensor X, x_test;
+    Print("Chargement des datas:");
+    get_data_Cifar_10(X, x_test, device);
+    int nbr_val = 1;
+    x_test = x_test.extraction_section_axe_0(0, nbr_val);
+    Print("Chargement des datas Fini. X(", X.get_shape()[0], ") test(", x_test.get_shape()[0], ")");
+
+    float eta = 0.001;
+    Print("construction encoder.");
+    Model* encoder = new Model({.model_name = "Encoder", .input_shape = Shape({3,32,32}), .eta = eta, .device=device});
+    encoder->add(new LayerConv2D(16,3));
+    encoder->add(new LayerRelu());
+    encoder->add(new LayerMaxPool2D());
+
+    encoder->add(new LayerConv2D(16,3));
+    encoder->add(new LayerRelu());
+    encoder->add(new LayerMaxPool2D());
+
+    encoder->add(new LayerFlatten());
+    encoder->add(new LayerIdentity()); // latent = 1024
+
+    Print("construction decoder.");
+    Model* decoder = new Model({.model_name = "Decoder", .input_shape = Shape({1024}), .eta = eta, .device=device}); //16*8*8 = 2024
+
+    decoder->add(new LayerUnflatten(Shape({16,8,8})));
+
+    decoder->add(new LayerUpSampling2D());
+    decoder->add(new LayerConv2D(16,3));
+    decoder->add(new LayerRelu());
+
+    decoder->add(new LayerUpSampling2D());
+    decoder->add(new LayerConv2D(16,3));
+    decoder->add(new LayerRelu());
+
+    decoder->add(new LayerConv2D(3,3));
+    decoder->add(new LayerSigmoid());
+
+
+    // petit print
+    encoder->print();
+    decoder->print();
+
+    Auto_Encoder ae(encoder, decoder);
+    ae.set_loss_function(new LossMSE());
+    ae.add_callback(new CallbackEarlyStopLoss({.patience = 2}));
+
+    Print("entrainement.");
+    ae.fit(X, 5, 128);
+
+    Tensor Y_test_pred = ae.predict(x_test);
+    for(size_t i = 0; i < (size_t)nbr_val; i++){
+        print_exemple_images_bi(x_test, Y_test_pred, i, false);
+    }
+}

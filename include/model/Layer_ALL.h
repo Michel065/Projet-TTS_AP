@@ -2,6 +2,7 @@
 
 #include "model/Layer_dense/Layer_dense.h"
 #include "model/Layer_dense/Layer_norm.h"
+#include "model/Layer_dense/Layer_identity.h"
 
 #include "model/Layer_activation/Layer_sigmoid.h"
 #include "model/Layer_activation/Layer_relu.h"

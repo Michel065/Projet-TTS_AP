@@ -35,4 +35,5 @@ void get_data_CNN(Tensor& X_train,Tensor& y_train,Tensor& X_test,Tensor& y_test,
 
 // pour plus de test:
 void load_Cifar_10_csv_X(Tensor& X, const std::string& path, DeviceType device);
-void get_data_Cifar_10(Tensor& X_train,Tensor& X_test,DeviceType device);
+void get_data_Cifar_10(Tensor& X_train,Tensor& X_test,DeviceType device,bool norm=true);
+void get_data_Cifar_10_train(Tensor& X_train,DeviceType device,bool norm=true);

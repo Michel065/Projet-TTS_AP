@@ -173,7 +173,18 @@ void load_Cifar_10_csv_X(Tensor& X, const std::string& path, DeviceType device){
     X = Tensor(device,xt::adapt(images_data, {nb_samples, size_t(3), size_t(32), size_t(32)}));
 }
 
-void get_data_Cifar_10(Tensor& X_train,Tensor& X_test,DeviceType device){
+void get_data_Cifar_10(Tensor& X_train,Tensor& X_test,DeviceType device,bool norm){
     load_Cifar_10_csv_X(X_train, "./data/cifar-10/CIFAR-10-train.csv", device);
     load_Cifar_10_csv_X(X_test, "./data/cifar-10/CIFAR-10-test.csv", device);
+    if(norm){
+        X_train /= 255.0f;
+        X_test /= 255.0f;
+    }
+}
+
+void get_data_Cifar_10_train(Tensor& X_train,DeviceType device,bool norm){
+    load_Cifar_10_csv_X(X_train, "./data/cifar-10/CIFAR-10-train.csv", device);
+    if(norm){
+        X_train /= 255.0f;
+    }
 }

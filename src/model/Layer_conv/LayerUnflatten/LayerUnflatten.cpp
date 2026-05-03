@@ -34,11 +34,15 @@ void LayerUnflatten::build(){
         return;
     }
     int nbr = _shape_out.size();
-    _model->add(new LayerDense(nbr));
-    _model->add(new LayerRelu());
     
-    _shape_input[0] = _shape_out.size();
     set_output_shape(_shape_out);
+    if((int)_shape_input[0] != nbr){
+        print_couche_msg("Ajout Layer transition de "+std::to_string(_shape_input[0])+" vers "+ std::to_string(nbr), Color::ORANGE);
+        _model->add(new LayerDense(nbr));
+        _model->add(new LayerRelu());
+        _shape_input[0] = nbr;
+        print_couche_msg("Ajout Layer transition Done", Color::ORANGE);
+    }
     print_couche_msg("Build termine.", Color::GREEN);
 }
 

@@ -29,5 +29,5 @@ void gpu_UpSampling2D_div2(Tensor& grad_out, Tensor& grad_in, size_t _taille_bat
     dim3 threads = CudaConfig::threads_per_block_2D();
     dim3 blocks = CudaConfig::calculs_blocks_2D(in_w,channels * in_h, _taille_batch);  
     UpSampling2D_div2_kernel<<<blocks, threads>>>(d_grad_out,d_grad_in,_taille_batch,channels,out_h,out_w,in_h,in_w);
-    cuda_check_all("maxpool2d_backward_kernel");
+    cuda_check_all("upsampling2d_backward_kernel");
 }

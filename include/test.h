@@ -5,6 +5,7 @@
 #include "outil/Print.h"
 
 #include "model/Model.h"
+#include "model/Auto_Encoder.h"
 #include "model/Callback/CallbackEarlyStopLoss.h"
 
 // imports des base pour nos models et donc les tests avancé
@@ -23,4 +24,6 @@ void test_CNN(DeviceType device = DeviceType::CPU);
 void test_CNN_load(DeviceType device = DeviceType::CPU);
 
 void print_exemple_images_bi(Tensor& images1, Tensor& images2, size_t index,bool norm = false);
-//void test_UpSampling(DeviceType device = DeviceType::GPU); // GPU par defaut puisque CPU pas fait
+
+void test_AutoEncoder_Cifar(DeviceType device = DeviceType::GPU);// GPU par defaut puisque CPU pas fait
+void test_AutoEncoder_Cifar_v2(DeviceType device);
