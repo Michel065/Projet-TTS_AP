@@ -112,7 +112,8 @@ void test_AutoEncoder_Cifar_v3_load(DeviceType device){
 }
 
 int main() {
-    test_AutoEncoder_Cifar_v3(DeviceType::GPU);
-
+    //test_AutoEncoder_Cifar_v3(DeviceType::GPU);
+    test_CNN(DeviceType::GPU);
+    //test_non_lineaire(DeviceType::GPU);
     return 0;
 }

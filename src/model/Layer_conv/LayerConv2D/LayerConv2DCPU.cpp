@@ -11,7 +11,6 @@ void LayerConv2DCPU::forward(Tensor& output, Tensor& input, const Tensor& _W, co
                 //pour chaque pixel shape_input[1]
                 for(size_t x = 0; x < shape_input[2]; x++){
                     //pour chaque pixel shape_input[2]
-
                     float sum = 0.0f;
                     for(size_t c = 0; c < shape_input[0]; c++){
                         //pour chaque channel donc probablement 1 mais on sait jamais pour les tests
@@ -39,11 +38,7 @@ void LayerConv2DCPU::forward(Tensor& output, Tensor& input, const Tensor& _W, co
 }
 
 
-void LayerConv2DCPU::backward(Tensor& grad_W, Tensor& grad_b,Tensor& grad_output,
-    const Tensor& grad_input, Tensor& last_input, Tensor& _W, 
-    size_t nb_filters, size_t kernel, size_t pad,
-    Shape shape_input){
-    
+void LayerConv2DCPU::backward(Tensor& grad_W, Tensor& grad_b,Tensor& grad_output,const Tensor& grad_input, Tensor& last_input, Tensor& _W, size_t nb_filters, size_t kernel, size_t pad,Shape shape_input){
     size_t batch = last_input.get_shape()[0];
 
     //grad_b

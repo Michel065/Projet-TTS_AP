@@ -156,20 +156,20 @@ void test_CNN(DeviceType device){
     Print("Chargement des datas Fini. X(",X.get_shape()[0],") y(",x_test.get_shape()[0],")");
 
     Print("construction model.");
-    Model model({.input_shape = Shape({1,28,28}), .eta = 1, .device=device});
+    Model model({.input_shape = Shape({1,28,28}), .eta = 0.1, .device=device});
     model.add(new LayerNormalisationImage());
 
-    model.add(new LayerConv2D(2,3));
+    model.add(new LayerConv2D(16,3));
     model.add(new LayerRelu());
     model.add(new LayerMaxPool2D());
  
-    model.add(new LayerConv2D(16,3));
+    model.add(new LayerConv2D(32,3));
     model.add(new LayerRelu());
     model.add(new LayerMaxPool2D());
 
     model.add(new LayerFlatten());
 
-    model.add(new LayerDense(10));
+    model.add(new LayerDense(64));
     model.add(new LayerRelu());
     model.add(new LayerDense(10));
     model.add(new LayerSoftMax());
@@ -179,11 +179,11 @@ void test_CNN(DeviceType device){
     model.set_affichge_level(1);
 
     Print("entrainement.");
-    model.fit(X,y,75,128);
+    model.fit(X,y,150,128);
+    model.create_graph_loss_entrainement();
 
     Print("Test:");
     evaluate_cnn(model,x_test,y_test);
-    model.create_graph_loss_entrainement();
     //model.save("./models/model_cnn.json",false);
 }
 
